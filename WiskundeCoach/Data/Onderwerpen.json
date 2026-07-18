@@ -1,0 +1,512 @@
+{
+  "_beheer": "CONTENTBEHEER: voeg hier onderwerpen toe of pas ze aan. Elk blok geldt voor methode + niveaus + leerjaar (+ optionele variant A/B/C/D voor bovenbouw havo/vwo). Gebruik stabiele, unieke id's: de voortgang van leerlingen hangt aan het id. eindNiveau (1-5) is de moeilijkheid waarop het onderwerp wordt afgevinkt. Ontbrekende combinaties (o.a. vwo 5/6 wiskunde C en D) zijn bewust nog leeg en kunnen hier worden aangevuld.",
+  "entries": [
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-bb", "vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 1,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-vmbo-1-getallen", "naam": "Rekenen met gehele getallen", "beschrijving": "Optellen, aftrekken, vermenigvuldigen en delen, ook met de volgorde van bewerkingen.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-1-verhoudingen", "naam": "Verhoudingstabellen", "beschrijving": "Rekenen met verhoudingen en verhoudingstabellen in praktijksituaties.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-1-meten", "naam": "Meten en maten", "beschrijving": "Lengte, gewicht, tijd en inhoud omrekenen tussen eenheden.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-1-vlakkefiguren", "naam": "Vlakke figuren", "beschrijving": "Figuren herkennen, omtrek bepalen en eenvoudige oppervlakte berekenen.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-1-formules", "naam": "Formules invullen", "beschrijving": "Waarden invullen in woordformules en eenvoudige letterformules.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-bb", "vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 2,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-vmbo-2-procenten", "naam": "Procenten", "beschrijving": "Procenten van een bedrag, korting en btw berekenen.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-2-negatief", "naam": "Negatieve getallen", "beschrijving": "Rekenen met positieve en negatieve getallen, ook met temperatuur en schulden.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-2-oppervlakte", "naam": "Omtrek en oppervlakte", "beschrijving": "Omtrek en oppervlakte van rechthoeken, driehoeken en samengestelde figuren.", "eindNiveau": 4 },
+        { "id": "gr-vmbo-2-grafieken", "naam": "Grafieken aflezen en tekenen", "beschrijving": "Informatie aflezen uit grafieken en zelf een grafiek tekenen bij een tabel.", "eindNiveau": 3 },
+        { "id": "gr-vmbo-2-verbanden", "naam": "Verbanden en formules", "beschrijving": "Lineaire verbanden herkennen in tabellen, grafieken en formules.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-vmbo-3-pythagoras", "naam": "Stelling van Pythagoras", "beschrijving": "Zijden van rechthoekige driehoeken berekenen met de stelling van Pythagoras.", "eindNiveau": 4 },
+        { "id": "gr-vmbo-3-inhoud", "naam": "Inhoud van ruimtefiguren", "beschrijving": "Inhoud van balken, cilinders en prisma's berekenen.", "eindNiveau": 4 },
+        { "id": "gr-vmbo-3-lineair", "naam": "Lineaire formules", "beschrijving": "Formules opstellen bij lineaire verbanden en vergelijkingen oplossen.", "eindNiveau": 4 },
+        { "id": "gr-vmbo-3-statistiek", "naam": "Statistiek", "beschrijving": "Gemiddelde, mediaan en modus berekenen en diagrammen aflezen.", "eindNiveau": 4 },
+        { "id": "gr-vmbo-3-procenten", "naam": "Procenten en verhoudingen", "beschrijving": "Procentuele toename en afname, en rekenen met verhoudingen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-bb"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-bb-3-praktijk", "naam": "Rekenen in de praktijk", "beschrijving": "Rekenen met geld, kortingen en verhoudingen in alledaagse situaties.", "eindNiveau": 3 },
+        { "id": "gr-bb-3-schaal", "naam": "Maten en schaal", "beschrijving": "Werken met schaal op kaarten en tekeningen en maten omrekenen.", "eindNiveau": 3 },
+        { "id": "gr-bb-3-grafieken", "naam": "Tabellen en grafieken", "beschrijving": "Informatie aflezen en vergelijken in tabellen en grafieken.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 4,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-vmbo-4-goniometrie", "naam": "Goniometrie", "beschrijving": "Sinus, cosinus en tangens in rechthoekige driehoeken.", "eindNiveau": 5 },
+        { "id": "gr-vmbo-4-vergelijkingen", "naam": "Vergelijkingen oplossen", "beschrijving": "Lineaire vergelijkingen oplossen, ook met de balansmethode en inklemmen.", "eindNiveau": 5 },
+        { "id": "gr-vmbo-4-verbanden", "naam": "Examentraining verbanden", "beschrijving": "Lineaire en andere verbanden in examenopgaven met tabellen, grafieken en formules.", "eindNiveau": 5 },
+        { "id": "gr-vmbo-4-statistiek", "naam": "Statistiek en diagrammen", "beschrijving": "Examenopgaven over gemiddelden, diagrammen en het vergelijken van gegevens.", "eindNiveau": 5 },
+        { "id": "gr-vmbo-4-ruimtemeetkunde", "naam": "Oppervlakte en inhoud", "beschrijving": "Oppervlakte en inhoud van vlakke en ruimtelijke figuren op examenniveau.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vmbo-bb"],
+      "leerjaar": 4,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-bb-4-examen-rekenen", "naam": "Rekenen voor het examen", "beschrijving": "Examenopgaven over geld, procenten en verhoudingen.", "eindNiveau": 4 },
+        { "id": "gr-bb-4-meetkunde", "naam": "Meetkunde in de praktijk", "beschrijving": "Omtrek, oppervlakte en inhoud in praktische examenopgaven.", "eindNiveau": 4 },
+        { "id": "gr-bb-4-grafieken", "naam": "Tabellen en grafieken", "beschrijving": "Examenopgaven met tabellen, grafieken en eenvoudige formules.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 1,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-hv-1-rekenen", "naam": "Rekenen en volgorde van bewerkingen", "beschrijving": "Rekenen met haakjes, machten en de juiste volgorde van bewerkingen.", "eindNiveau": 3 },
+        { "id": "gr-hv-1-assenstelsel", "naam": "Assenstelsel en coördinaten", "beschrijving": "Punten tekenen en aflezen in een assenstelsel met coördinaten.", "eindNiveau": 3 },
+        { "id": "gr-hv-1-lijnen", "naam": "Lijnen en hoeken", "beschrijving": "Hoeken meten en berekenen, en eigenschappen van snijdende en evenwijdige lijnen.", "eindNiveau": 3 },
+        { "id": "gr-hv-1-breuken", "naam": "Breuken", "beschrijving": "Rekenen met breuken: vereenvoudigen, optellen, aftrekken, vermenigvuldigen en delen.", "eindNiveau": 3 },
+        { "id": "gr-hv-1-formules", "naam": "Woordformules en grafieken", "beschrijving": "Formules in woorden en letters gebruiken en er grafieken bij tekenen.", "eindNiveau": 3 },
+        { "id": "gr-hv-1-negatief", "naam": "Negatieve getallen", "beschrijving": "Rekenen met negatieve getallen, ook in combinatie met machten.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 2,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-hv-2-lineair", "naam": "Lineaire formules", "beschrijving": "Lineaire formules opstellen, hellingsgetal en startgetal bepalen.", "eindNiveau": 4 },
+        { "id": "gr-hv-2-vergelijkingen", "naam": "Vergelijkingen oplossen", "beschrijving": "Lineaire vergelijkingen oplossen met de balansmethode.", "eindNiveau": 4 },
+        { "id": "gr-hv-2-pythagoras", "naam": "Stelling van Pythagoras", "beschrijving": "Zijden berekenen in rechthoekige driehoeken, ook in ruimtelijke situaties.", "eindNiveau": 4 },
+        { "id": "gr-hv-2-machten", "naam": "Machten en wortels", "beschrijving": "Rekenen met machten en wortels en de bijbehorende rekenregels.", "eindNiveau": 4 },
+        { "id": "gr-hv-2-procenten", "naam": "Procenten en groei", "beschrijving": "Procentuele toename en afname en rekenen met groeifactoren.", "eindNiveau": 4 },
+        { "id": "gr-hv-2-oppervlakte", "naam": "Oppervlakte en inhoud", "beschrijving": "Oppervlakte en inhoud van vlakke figuren en ruimtefiguren.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "gr-hv-3-kwadratisch", "naam": "Kwadratische vergelijkingen", "beschrijving": "Kwadratische vergelijkingen oplossen door ontbinden in factoren en met de abc-formule.", "eindNiveau": 4 },
+        { "id": "gr-hv-3-parabolen", "naam": "Parabolen en kwadratische verbanden", "beschrijving": "Grafieken van kwadratische formules, top en snijpunten bepalen.", "eindNiveau": 4 },
+        { "id": "gr-hv-3-goniometrie", "naam": "Goniometrie: sin, cos en tan", "beschrijving": "Hoeken en zijden berekenen in rechthoekige driehoeken.", "eindNiveau": 4 },
+        { "id": "gr-hv-3-exponentieel", "naam": "Exponentiële verbanden", "beschrijving": "Exponentiële groei en afname met groeifactoren en formules.", "eindNiveau": 4 },
+        { "id": "gr-hv-3-ongelijkheden", "naam": "Ongelijkheden", "beschrijving": "Lineaire ongelijkheden oplossen en oplossingen weergeven.", "eindNiveau": 4 },
+        { "id": "gr-hv-3-statistiek", "naam": "Statistiek", "beschrijving": "Centrummaten, spreiding en diagrammen interpreteren.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo"],
+      "leerjaar": 4,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "gr-h4a-verhoudingen", "naam": "Rekenvaardigheden en verhoudingen", "beschrijving": "Rekenen met procenten, verhoudingen en grote getallen in contexten.", "eindNiveau": 4 },
+        { "id": "gr-h4a-formules", "naam": "Tabellen, grafieken en formules", "beschrijving": "Formules gebruiken en herleiden bij tabellen en grafieken uit de praktijk.", "eindNiveau": 4 },
+        { "id": "gr-h4a-statistiek", "naam": "Statistiek en data", "beschrijving": "Data samenvatten met centrummaten, spreidingsmaten en diagrammen.", "eindNiveau": 4 },
+        { "id": "gr-h4a-groei", "naam": "Exponentiële groei", "beschrijving": "Groeifactoren, verdubbelingstijd en exponentiële formules in contexten.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo"],
+      "leerjaar": 4,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "gr-h4b-functies", "naam": "Functies en grafieken", "beschrijving": "Functienotatie, domein en bereik, en grafieken van standaardfuncties.", "eindNiveau": 4 },
+        { "id": "gr-h4b-kwadratisch", "naam": "Kwadratische vergelijkingen en ontbinden", "beschrijving": "Kwadratische vergelijkingen en ongelijkheden oplossen.", "eindNiveau": 4 },
+        { "id": "gr-h4b-goniometrie", "naam": "Goniometrie", "beschrijving": "Sinus, cosinus en tangens in meetkundige berekeningen.", "eindNiveau": 4 },
+        { "id": "gr-h4b-afgeleide", "naam": "De afgeleide (introductie)", "beschrijving": "Differentiëren van machtsfuncties en de afgeleide gebruiken bij hellingen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo"],
+      "leerjaar": 5,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "gr-h5a-statistiek", "naam": "Statistiek met de rekenmachine", "beschrijving": "Statistische examenopgaven: steekproeven, diagrammen en conclusies trekken.", "eindNiveau": 5 },
+        { "id": "gr-h5a-veranderingen", "naam": "Rijen en veranderingen", "beschrijving": "Toename, afname en somrijen in praktische contexten.", "eindNiveau": 5 },
+        { "id": "gr-h5a-examen", "naam": "Examentraining formules", "beschrijving": "Examenopgaven met formules, verbanden en rekenvaardigheid.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["havo"],
+      "leerjaar": 5,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "gr-h5b-explog", "naam": "Exponentiële en logaritmische functies", "beschrijving": "Vergelijkingen met exponenten en logaritmen oplossen.", "eindNiveau": 5 },
+        { "id": "gr-h5b-afgeleide", "naam": "Afgeleide en optimaliseren", "beschrijving": "Differentiëren en extreme waarden bepalen in toepassingen.", "eindNiveau": 5 },
+        { "id": "gr-h5b-goniometrie", "naam": "Goniometrische functies", "beschrijving": "Sinusoïden: amplitude, periode en evenwichtsstand.", "eindNiveau": 5 },
+        { "id": "gr-h5b-examen", "naam": "Examentraining functies", "beschrijving": "Gemengde examenopgaven over functies, vergelijkingen en meetkunde.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "gr-v4a-formules", "naam": "Formules herleiden", "beschrijving": "Formules herschrijven, substitueren en vergelijkingen oplossen.", "eindNiveau": 4 },
+        { "id": "gr-v4a-tellen", "naam": "Tellen en kansen", "beschrijving": "Systematisch tellen, permutaties, combinaties en eenvoudige kansen.", "eindNiveau": 4 },
+        { "id": "gr-v4a-groei", "naam": "Machten en exponentiële verbanden", "beschrijving": "Exponentiële groei en machtsverbanden in contexten.", "eindNiveau": 4 },
+        { "id": "gr-v4a-statistiek", "naam": "Statistiek", "beschrijving": "Data-analyse met centrummaten, spreiding en diagrammen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "gr-v4b-functies", "naam": "Functies en herleiden", "beschrijving": "Functienotatie, transformaties en algebraïsch herleiden.", "eindNiveau": 4 },
+        { "id": "gr-v4b-vergelijkingen", "naam": "Kwadratische en gebroken functies", "beschrijving": "Vergelijkingen en ongelijkheden met kwadratische en gebroken functies.", "eindNiveau": 4 },
+        { "id": "gr-v4b-goniometrie", "naam": "Goniometrie", "beschrijving": "Goniometrie in driehoeken: sinusregel, cosinusregel en exacte waarden.", "eindNiveau": 4 },
+        { "id": "gr-v4b-afgeleide", "naam": "De afgeleide", "beschrijving": "Differentiëren met de machtsregel en raaklijnen opstellen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "C",
+      "onderwerpen": [
+        { "id": "gr-v4c-statistiek", "naam": "Statistiek en tellen", "beschrijving": "Data-analyse, telproblemen en eenvoudige kansen.", "eindNiveau": 4 },
+        { "id": "gr-v4c-formules", "naam": "Formules en verbanden", "beschrijving": "Lineaire en exponentiële verbanden in maatschappelijke contexten.", "eindNiveau": 4 },
+        { "id": "gr-v4c-logisch", "naam": "Logisch redeneren", "beschrijving": "Redeneringen opbouwen en beoordelen met logische stappen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "D",
+      "onderwerpen": [
+        { "id": "gr-v4d-kansrekening", "naam": "Kansrekening", "beschrijving": "Kansen berekenen met bomen, tabellen en telregels.", "eindNiveau": 4 },
+        { "id": "gr-v4d-statistiek", "naam": "Statistiek", "beschrijving": "Kansverdelingen en statistische experimenten.", "eindNiveau": 4 },
+        { "id": "gr-v4d-complex", "naam": "Complexe getallen (introductie)", "beschrijving": "Rekenen met complexe getallen in de vorm a + bi.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 5,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "gr-v5a-kansen", "naam": "Kansverdelingen", "beschrijving": "Binomiale en normale verdeling in toepassingen.", "eindNiveau": 5 },
+        { "id": "gr-v5a-rijen", "naam": "Rijen", "beschrijving": "Rekenkundige en meetkundige rijen met somformules.", "eindNiveau": 5 },
+        { "id": "gr-v5a-verbanden", "naam": "Logaritmen en groeimodellen", "beschrijving": "Logaritmen gebruiken bij exponentiële groeimodellen.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 5,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "gr-v5b-explog", "naam": "Exponentiële en logaritmische functies", "beschrijving": "Vergelijkingen met exponenten en logaritmen algebraïsch oplossen.", "eindNiveau": 5 },
+        { "id": "gr-v5b-differentieren", "naam": "Differentiëerregels", "beschrijving": "Ketting-, product- en quotiëntregel toepassen.", "eindNiveau": 5 },
+        { "id": "gr-v5b-goniometrie", "naam": "Goniometrische functies", "beschrijving": "Sinusoïden, goniometrische vergelijkingen en exacte waarden.", "eindNiveau": 5 },
+        { "id": "gr-v5b-meetkunde", "naam": "Meetkunde met coördinaten", "beschrijving": "Lijnen, cirkels en afstanden in het platte vlak.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 6,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "gr-v6a-toetsen", "naam": "Statistisch toetsen", "beschrijving": "Hypotheses toetsen en conclusies trekken uit steekproeven.", "eindNiveau": 5 },
+        { "id": "gr-v6a-examen", "naam": "Examentraining analyse", "beschrijving": "Gemengde examenopgaven over formules, groei en rijen.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "getal-en-ruimte",
+      "niveaus": ["vwo"],
+      "leerjaar": 6,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "gr-v6b-integreren", "naam": "Integraalrekening", "beschrijving": "Primitieven bepalen en oppervlakten berekenen met integralen.", "eindNiveau": 5 },
+        { "id": "gr-v6b-examen", "naam": "Examentraining functies", "beschrijving": "Gemengde examenopgaven over functies, afgeleiden en integralen.", "eindNiveau": 5 },
+        { "id": "gr-v6b-meetkunde", "naam": "Meetkunde: bewijzen", "beschrijving": "Meetkundige bewijzen en berekeningen op examenniveau.", "eindNiveau": 5 }
+      ]
+    },
+
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-bb", "vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 1,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-vmbo-1-rekenen", "naam": "Rekenen in situaties", "beschrijving": "Handig rekenen met gehele getallen in alledaagse contexten.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-1-verhoudingen", "naam": "Verhoudingen", "beschrijving": "Verhoudingen en verhoudingstabellen bij recepten, prijzen en snelheid.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-1-meten", "naam": "Meten", "beschrijving": "Maten omrekenen en meten in praktische situaties.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-1-vormen", "naam": "Vormen en figuren", "beschrijving": "Vlakke figuren herkennen en omtrek en oppervlakte bepalen.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-1-formules", "naam": "Formules gebruiken", "beschrijving": "Woordformules invullen en gebruiken in contexten.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-bb", "vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 2,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-vmbo-2-procenten", "naam": "Procenten in de praktijk", "beschrijving": "Korting, rente en btw berekenen in realistische situaties.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-2-negatief", "naam": "Positief en negatief", "beschrijving": "Rekenen met negatieve getallen, bijvoorbeeld bij temperatuur en saldo.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-2-oppervlakte", "naam": "Omtrek en oppervlakte", "beschrijving": "Omtrek en oppervlakte berekenen van figuren uit de praktijk.", "eindNiveau": 4 },
+        { "id": "mw-vmbo-2-grafieken", "naam": "Grafieken en tabellen", "beschrijving": "Grafieken aflezen, vergelijken en tekenen bij situaties.", "eindNiveau": 3 },
+        { "id": "mw-vmbo-2-verbanden", "naam": "Regelmaat en verbanden", "beschrijving": "Lineaire verbanden herkennen en gebruiken in tabellen en formules.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-vmbo-3-pythagoras", "naam": "Pythagoras", "beschrijving": "De stelling van Pythagoras toepassen in praktische situaties.", "eindNiveau": 4 },
+        { "id": "mw-vmbo-3-inhoud", "naam": "Ruimtefiguren", "beschrijving": "Inhoud en oppervlakte van ruimtefiguren berekenen.", "eindNiveau": 4 },
+        { "id": "mw-vmbo-3-formules", "naam": "Formules en vergelijkingen", "beschrijving": "Lineaire formules opstellen en vergelijkingen oplossen.", "eindNiveau": 4 },
+        { "id": "mw-vmbo-3-statistiek", "naam": "Gegevens verwerken", "beschrijving": "Data verzamelen, samenvatten en weergeven in diagrammen.", "eindNiveau": 4 },
+        { "id": "mw-vmbo-3-verhoudingen", "naam": "Procenten en verhoudingen", "beschrijving": "Procentuele veranderingen en verhoudingen in contexten.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-bb"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-bb-3-geld", "naam": "Rekenen met geld", "beschrijving": "Prijzen, korting en begroten in praktische situaties.", "eindNiveau": 3 },
+        { "id": "mw-bb-3-schaal", "naam": "Schaal en plattegronden", "beschrijving": "Werken met schaal op plattegronden en kaarten.", "eindNiveau": 3 },
+        { "id": "mw-bb-3-grafieken", "naam": "Grafieken lezen", "beschrijving": "Informatie halen uit tabellen, grafieken en diagrammen.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-kb", "vmbo-gl", "vmbo-tl"],
+      "leerjaar": 4,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-vmbo-4-goniometrie", "naam": "Hellingen en goniometrie", "beschrijving": "Sinus, cosinus en tangens gebruiken bij hellingen en hoogtes.", "eindNiveau": 5 },
+        { "id": "mw-vmbo-4-vergelijkingen", "naam": "Vergelijkingen", "beschrijving": "Vergelijkingen oplossen bij formules uit examenopgaven.", "eindNiveau": 5 },
+        { "id": "mw-vmbo-4-verbanden", "naam": "Verbanden voor het examen", "beschrijving": "Examenopgaven over lineaire en andere verbanden.", "eindNiveau": 5 },
+        { "id": "mw-vmbo-4-statistiek", "naam": "Statistiek voor het examen", "beschrijving": "Examenopgaven over gemiddelden, diagrammen en conclusies.", "eindNiveau": 5 },
+        { "id": "mw-vmbo-4-meetkunde", "naam": "Meetkunde voor het examen", "beschrijving": "Oppervlakte, inhoud en Pythagoras op examenniveau.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vmbo-bb"],
+      "leerjaar": 4,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-bb-4-examen-rekenen", "naam": "Rekenen voor het examen", "beschrijving": "Examenopgaven over geld, procenten en verhoudingen.", "eindNiveau": 4 },
+        { "id": "mw-bb-4-meetkunde", "naam": "Meetkunde voor het examen", "beschrijving": "Praktische examenopgaven over omtrek, oppervlakte en inhoud.", "eindNiveau": 4 },
+        { "id": "mw-bb-4-grafieken", "naam": "Tabellen en grafieken", "beschrijving": "Examenopgaven met tabellen, grafieken en formules.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 1,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-hv-1-rekenen", "naam": "Rekenen", "beschrijving": "Volgorde van bewerkingen, machten en handig rekenen.", "eindNiveau": 3 },
+        { "id": "mw-hv-1-roosters", "naam": "Roosters en coördinaten", "beschrijving": "Punten en figuren in een assenstelsel.", "eindNiveau": 3 },
+        { "id": "mw-hv-1-hoeken", "naam": "Hoeken en symmetrie", "beschrijving": "Hoeken meten en berekenen, symmetrie herkennen.", "eindNiveau": 3 },
+        { "id": "mw-hv-1-breuken", "naam": "Breuken en decimale getallen", "beschrijving": "Rekenen met breuken en decimale getallen.", "eindNiveau": 3 },
+        { "id": "mw-hv-1-verbanden", "naam": "Formules en regelmaat", "beschrijving": "Regelmaat ontdekken en beschrijven met woord- en letterformules.", "eindNiveau": 3 },
+        { "id": "mw-hv-1-negatief", "naam": "Negatieve getallen", "beschrijving": "Rekenen met positieve en negatieve getallen.", "eindNiveau": 3 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 2,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-hv-2-lineair", "naam": "Lineaire verbanden", "beschrijving": "Lineaire formules, hellingsgetal en startgetal in contexten.", "eindNiveau": 4 },
+        { "id": "mw-hv-2-vergelijkingen", "naam": "Vergelijkingen oplossen", "beschrijving": "Vergelijkingen oplossen met de balansmethode.", "eindNiveau": 4 },
+        { "id": "mw-hv-2-pythagoras", "naam": "De stelling van Pythagoras", "beschrijving": "Zijden berekenen in rechthoekige driehoeken.", "eindNiveau": 4 },
+        { "id": "mw-hv-2-machten", "naam": "Machten en wortels", "beschrijving": "Rekenregels voor machten en wortels toepassen.", "eindNiveau": 4 },
+        { "id": "mw-hv-2-procenten", "naam": "Procenten en groei", "beschrijving": "Procentuele veranderingen en groeifactoren.", "eindNiveau": 4 },
+        { "id": "mw-hv-2-ruimte", "naam": "Ruimtefiguren", "beschrijving": "Oppervlakte en inhoud van ruimtefiguren.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo", "vwo"],
+      "leerjaar": 3,
+      "variant": null,
+      "onderwerpen": [
+        { "id": "mw-hv-3-kwadratisch", "naam": "Kwadratische vergelijkingen", "beschrijving": "Oplossen door ontbinden en met de abc-formule.", "eindNiveau": 4 },
+        { "id": "mw-hv-3-parabolen", "naam": "Kwadratische verbanden", "beschrijving": "Parabolen tekenen en kenmerken bepalen.", "eindNiveau": 4 },
+        { "id": "mw-hv-3-goniometrie", "naam": "Goniometrie", "beschrijving": "Sinus, cosinus en tangens in rechthoekige driehoeken.", "eindNiveau": 4 },
+        { "id": "mw-hv-3-exponentieel", "naam": "Exponentiële groei", "beschrijving": "Groeifactoren en exponentiële formules in contexten.", "eindNiveau": 4 },
+        { "id": "mw-hv-3-ongelijkheden", "naam": "Ongelijkheden", "beschrijving": "Lineaire ongelijkheden oplossen en interpreteren.", "eindNiveau": 4 },
+        { "id": "mw-hv-3-statistiek", "naam": "Statistiek", "beschrijving": "Data samenvatten en diagrammen interpreteren.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo"],
+      "leerjaar": 4,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "mw-h4a-rekenen", "naam": "Rekenen en verhoudingen", "beschrijving": "Procenten, verhoudingen en schaal in maatschappelijke contexten.", "eindNiveau": 4 },
+        { "id": "mw-h4a-verbanden", "naam": "Verbanden en formules", "beschrijving": "Formules bij tabellen en grafieken gebruiken en herleiden.", "eindNiveau": 4 },
+        { "id": "mw-h4a-statistiek", "naam": "Statistiek", "beschrijving": "Data-analyse met centrummaten, spreiding en diagrammen.", "eindNiveau": 4 },
+        { "id": "mw-h4a-groei", "naam": "Exponentiële groei", "beschrijving": "Groeifactoren en exponentiële modellen in contexten.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo"],
+      "leerjaar": 4,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "mw-h4b-functies", "naam": "Functies", "beschrijving": "Functienotatie, grafieken en transformaties.", "eindNiveau": 4 },
+        { "id": "mw-h4b-vergelijkingen", "naam": "Vergelijkingen en ongelijkheden", "beschrijving": "Kwadratische vergelijkingen en ongelijkheden oplossen.", "eindNiveau": 4 },
+        { "id": "mw-h4b-goniometrie", "naam": "Goniometrie", "beschrijving": "Berekeningen met sinus, cosinus en tangens.", "eindNiveau": 4 },
+        { "id": "mw-h4b-afgeleide", "naam": "Veranderingen en de afgeleide", "beschrijving": "Differentiequotiënt en de afgeleide van machtsfuncties.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo"],
+      "leerjaar": 5,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "mw-h5a-statistiek", "naam": "Statistiek en steekproeven", "beschrijving": "Examenopgaven over data, steekproeven en conclusies.", "eindNiveau": 5 },
+        { "id": "mw-h5a-veranderingen", "naam": "Veranderingen en rijen", "beschrijving": "Toename, afname en rijen in praktische contexten.", "eindNiveau": 5 },
+        { "id": "mw-h5a-examen", "naam": "Examentraining", "beschrijving": "Gemengde examenopgaven wiskunde A.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["havo"],
+      "leerjaar": 5,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "mw-h5b-explog", "naam": "Exponenten en logaritmen", "beschrijving": "Exponentiële en logaritmische vergelijkingen oplossen.", "eindNiveau": 5 },
+        { "id": "mw-h5b-afgeleide", "naam": "Differentiëren en optimaliseren", "beschrijving": "Afgeleiden gebruiken bij extreme waarden.", "eindNiveau": 5 },
+        { "id": "mw-h5b-goniometrie", "naam": "Periodieke functies", "beschrijving": "Sinusoïden en goniometrische vergelijkingen.", "eindNiveau": 5 },
+        { "id": "mw-h5b-examen", "naam": "Examentraining", "beschrijving": "Gemengde examenopgaven wiskunde B.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "mw-v4a-formules", "naam": "Formules en herleiden", "beschrijving": "Formules herschrijven en vergelijkingen oplossen.", "eindNiveau": 4 },
+        { "id": "mw-v4a-tellen", "naam": "Tellen en kansen", "beschrijving": "Telproblemen, permutaties, combinaties en kansen.", "eindNiveau": 4 },
+        { "id": "mw-v4a-groei", "naam": "Exponentiële verbanden", "beschrijving": "Exponentiële groei en machtsverbanden.", "eindNiveau": 4 },
+        { "id": "mw-v4a-statistiek", "naam": "Statistiek", "beschrijving": "Data-analyse en interpretatie van diagrammen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "mw-v4b-functies", "naam": "Functies en grafieken", "beschrijving": "Standaardfuncties, transformaties en herleiden.", "eindNiveau": 4 },
+        { "id": "mw-v4b-vergelijkingen", "naam": "Vergelijkingen", "beschrijving": "Kwadratische, gebroken en wortelvergelijkingen oplossen.", "eindNiveau": 4 },
+        { "id": "mw-v4b-goniometrie", "naam": "Goniometrie", "beschrijving": "Sinusregel, cosinusregel en exacte waarden.", "eindNiveau": 4 },
+        { "id": "mw-v4b-afgeleide", "naam": "De afgeleide", "beschrijving": "Differentiëren en raaklijnen opstellen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "C",
+      "onderwerpen": [
+        { "id": "mw-v4c-statistiek", "naam": "Statistiek en tellen", "beschrijving": "Data-analyse en telproblemen in maatschappelijke contexten.", "eindNiveau": 4 },
+        { "id": "mw-v4c-verbanden", "naam": "Verbanden", "beschrijving": "Lineaire en exponentiële verbanden in contexten.", "eindNiveau": 4 },
+        { "id": "mw-v4c-logisch", "naam": "Logisch redeneren", "beschrijving": "Redeneren en argumenteren met logische stappen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 4,
+      "variant": "D",
+      "onderwerpen": [
+        { "id": "mw-v4d-kansrekening", "naam": "Kansrekening", "beschrijving": "Kansen berekenen met bomen en telregels.", "eindNiveau": 4 },
+        { "id": "mw-v4d-statistiek", "naam": "Kansverdelingen", "beschrijving": "Kansverdelingen en verwachtingswaarde.", "eindNiveau": 4 },
+        { "id": "mw-v4d-complex", "naam": "Complexe getallen (introductie)", "beschrijving": "Rekenen met complexe getallen.", "eindNiveau": 4 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 5,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "mw-v5a-kansen", "naam": "Kansverdelingen", "beschrijving": "Binomiale en normale verdeling toepassen.", "eindNiveau": 5 },
+        { "id": "mw-v5a-rijen", "naam": "Rijen", "beschrijving": "Rekenkundige en meetkundige rijen.", "eindNiveau": 5 },
+        { "id": "mw-v5a-logaritmen", "naam": "Logaritmen en groei", "beschrijving": "Logaritmen bij exponentiële groeimodellen.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 5,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "mw-v5b-explog", "naam": "Exponentiële en logaritmische functies", "beschrijving": "Vergelijkingen met exponenten en logaritmen.", "eindNiveau": 5 },
+        { "id": "mw-v5b-differentieren", "naam": "Differentiëerregels", "beschrijving": "Ketting-, product- en quotiëntregel.", "eindNiveau": 5 },
+        { "id": "mw-v5b-goniometrie", "naam": "Goniometrische functies", "beschrijving": "Sinusoïden en goniometrische vergelijkingen.", "eindNiveau": 5 },
+        { "id": "mw-v5b-meetkunde", "naam": "Analytische meetkunde", "beschrijving": "Lijnen, cirkels en afstanden in het vlak.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 6,
+      "variant": "A",
+      "onderwerpen": [
+        { "id": "mw-v6a-toetsen", "naam": "Statistisch toetsen", "beschrijving": "Hypotheses toetsen met steekproeven.", "eindNiveau": 5 },
+        { "id": "mw-v6a-examen", "naam": "Examentraining", "beschrijving": "Gemengde examenopgaven wiskunde A.", "eindNiveau": 5 }
+      ]
+    },
+    {
+      "methode": "moderne-wiskunde",
+      "niveaus": ["vwo"],
+      "leerjaar": 6,
+      "variant": "B",
+      "onderwerpen": [
+        { "id": "mw-v6b-integreren", "naam": "Integraalrekening", "beschrijving": "Primitieven en oppervlakten met integralen.", "eindNiveau": 5 },
+        { "id": "mw-v6b-examen", "naam": "Examentraining", "beschrijving": "Gemengde examenopgaven wiskunde B.", "eindNiveau": 5 },
+        { "id": "mw-v6b-bewijzen", "naam": "Meetkundige bewijzen", "beschrijving": "Bewijzen en berekeningen op examenniveau.", "eindNiveau": 5 }
+      ]
+    }
+  ]
+}
