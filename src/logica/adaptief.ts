@@ -23,6 +23,9 @@ export function doelAantalGoed(record: VoortgangRecord, eindNiveau: number): num
 
 /** Verwerkt één goed gemaakte opgave; geeft een bijgewerkte kopie terug. */
 export function verwerkGoedeOpgave(record: VoortgangRecord, eindNiveau: number): VoortgangRecord {
+  // Al behaald: de leerling mag blijven oefenen op het streefniveau,
+  // maar niveau en teller veranderen dan niet meer.
+  if (record.behaald) return record;
   const bijgewerkt = { ...record, aantalGoedOpNiveau: record.aantalGoedOpNiveau + 1 };
   if (bijgewerkt.aantalGoedOpNiveau < doelAantalGoed(record, eindNiveau)) {
     return bijgewerkt;

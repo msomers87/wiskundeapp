@@ -103,6 +103,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
           },
         ],
       };
+      const wasAlBehaald = record.behaald;
       if (resultaat.correct) {
         bijgewerkt = verwerkGoedeOpgave(bijgewerkt, onderwerp.eindNiveau);
       }
@@ -110,7 +111,9 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
       onVoortgang(bijgewerkt);
 
       if (resultaat.correct) {
-        setFase(bijgewerkt.behaald ? { naam: 'afgerond' } : { naam: 'goed' });
+        // Het 'afgerond'-scherm alleen op het moment van behalen; wie
+        // daarna blijft oefenen krijgt de gewone goed-feedback.
+        setFase(bijgewerkt.behaald && !wasAlBehaald ? { naam: 'afgerond' } : { naam: 'goed' });
       } else {
         setFase({ naam: 'fout' });
       }
@@ -122,6 +125,20 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
 
   const doel = doelAantalGoed(record, onderwerp.eindNiveau);
 
+  /** Voortgang van dit onderwerp resetten: terug naar moeilijkheid 1. */
+  const resetVoortgang = () => {
+    const zeker = window.confirm(
+      'Voortgang van dit onderwerp resetten? Je begint dan weer op moeilijkheid 1.',
+    );
+    if (!zeker) return;
+    const vers = nieuwRecord(onderwerp.id);
+    // recordRef direct bijwerken: laadOpgave gebruikt hem meteen.
+    recordRef.current = vers;
+    setRecord(vers);
+    onVoortgang(vers);
+    void laadOpgave();
+  };
+
   return (
     <div className="scherm">
       <header className="kop">
@@ -129,6 +146,15 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
           ‹
         </button>
         <h1>{onderwerp.naam}</h1>
+        <button
+          type="button"
+          className="kop-knop"
+          onClick={resetVoortgang}
+          aria-label="Voortgang van dit onderwerp resetten"
+          title="Voortgang resetten"
+        >
+          ↺
+        </button>
       </header>
 
       {fase.naam === 'laden' && (
@@ -151,8 +177,14 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
         <main className="inhoud gecentreerd">
           <div className="afgerond-vinkje">✓</div>
           <h2>Onderwerp afgerond!</h2>
-          <p className="voetnoot">Je hebt alle niveaus van dit onderwerp gehaald. Knap gedaan!</p>
-          <button type="button" className="knop-primair" onClick={onTerug}>
+          <p className="voetnoot">
+            Je hebt alle niveaus van dit onderwerp gehaald. Knap gedaan! Je kunt blijven oefenen op
+            dit niveau; het onderwerp blijft afgevinkt.
+          </p>
+          <button type="button" className="knop-primair" onClick={() => void laadOpgave()}>
+            Blijf oefenen op dit niveau
+          </button>
+          <button type="button" className="knop-secundair" onClick={onTerug}>
             Terug naar onderwerpen
           </button>
         </main>
@@ -164,11 +196,15 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
             <span>
               Moeilijkheid {record.huidigNiveau} van {onderwerp.eindNiveau}
             </span>
-            <span className="niveaubolletjes" aria-label={`${record.aantalGoedOpNiveau} van ${doel} goed op dit niveau`}>
-              {Array.from({ length: doel }, (_, index) => (
-                <i key={index} className={index < record.aantalGoedOpNiveau ? 'vol' : ''} />
-              ))}
-            </span>
+            {record.behaald ? (
+              <span className="behaald-badge">✓ Behaald</span>
+            ) : (
+              <span className="niveaubolletjes" aria-label={`${record.aantalGoedOpNiveau} van ${doel} goed op dit niveau`}>
+                {Array.from({ length: doel }, (_, index) => (
+                  <i key={index} className={index < record.aantalGoedOpNiveau ? 'vol' : ''} />
+                ))}
+              </span>
+            )}
           </div>
 
           <main className="inhoud">
