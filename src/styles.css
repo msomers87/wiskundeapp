@@ -389,7 +389,11 @@ math-field {
   border: 1px solid var(--rand);
   border-radius: 12px;
   background: var(--achtergrond);
+  /* Invoertekst in de app-tekstkleur: wit in donkere modus,
+     donker in lichte modus (MathLive erft dit niet vanzelf). */
+  color: var(--tekst);
   --caret-color: var(--accent);
+  --selection-background-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 math-field:focus-within {

@@ -103,10 +103,14 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
               <button
                 type="button"
                 key={symbool.label}
-                // onPointerDown + preventDefault: zo houdt het invoerveld
-                // de focus (en cursorpositie) terwijl je op de knop tikt.
-                onPointerDown={(gebeurtenis) => gebeurtenis.preventDefault()}
-                onClick={() => voegSymboolIn(symbool.latex)}
+                // Invoegen direct bij pointerdown, mét preventDefault: zo
+                // houdt het invoerveld de focus/cursorpositie. (Invoegen via
+                // onClick werkt niet op iOS: preventDefault op pointerdown
+                // onderdrukt daar het click-event.)
+                onPointerDown={(gebeurtenis) => {
+                  gebeurtenis.preventDefault();
+                  voegSymboolIn(symbool.latex);
+                }}
               >
                 {symbool.label}
               </button>
