@@ -449,31 +449,6 @@ math-field:focus-within {
   cursor: pointer;
 }
 
-.symbolenbalk {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.symbolenbalk button {
-  flex-shrink: 0;
-  min-width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 10px;
-  background: var(--raster);
-  color: var(--tekst);
-  font-size: 1.05rem;
-  font-family: Georgia, 'Times New Roman', serif;
-  cursor: pointer;
-}
-
-.symbolenbalk button:active {
-  background: var(--rand);
-}
-
 /* ── Figuren (SVG) ────────────────────────────────────────────────────── */
 
 .figuur {

@@ -6,28 +6,8 @@ import type { MathfieldElement } from 'mathlive';
 //   single-expression, dus meerdere stappen = meerdere regels; samen
 //   vormen ze één invoergebied voor uitwerking + antwoord.
 // - MathLive toont op aanraakschermen automatisch zijn ingebouwde
-//   wiskundige toetsenbord met aanklikbare tekens.
-// - Daarnaast is er een eigen symbolenbalk; die voegt LaTeX in op de
-//   cursorpositie van het laatst actieve veld.
-
-const SYMBOLEN: { label: string; latex: string }[] = [
-  { label: '√', latex: '\\sqrt{#0}' },
-  { label: 'x²', latex: '^2' },
-  { label: 'xⁿ', latex: '^{#0}' },
-  { label: 'a/b', latex: '\\frac{#0}{#?}' },
-  { label: 'π', latex: '\\pi' },
-  { label: '×', latex: '\\times' },
-  { label: '÷', latex: '\\div' },
-  { label: '±', latex: '\\pm' },
-  { label: '≤', latex: '\\le' },
-  { label: '≥', latex: '\\ge' },
-  { label: '≠', latex: '\\ne' },
-  { label: '≈', latex: '\\approx' },
-  { label: '∞', latex: '\\infty' },
-  { label: '°', latex: '\\degree' },
-  { label: '(', latex: '(' },
-  { label: ')', latex: ')' },
-];
+//   wiskundige toetsenbord met alle benodigde tekens (incl. shift,
+//   zie logica/shiftfix.ts voor de iOS-reparatie).
 
 interface Props {
   regels: string[];
@@ -36,9 +16,6 @@ interface Props {
 }
 
 export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
-  const veldenRef = useRef<Map<number, MathfieldElement>>(new Map());
-  const actiefIndexRef = useRef(0);
-
   const wijzigRegel = (index: number, waarde: string) => {
     const kopie = [...regels];
     kopie[index] = waarde;
@@ -50,16 +27,7 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
   };
 
   const verwijderRegel = (index: number) => {
-    veldenRef.current.delete(index);
     onRegels(regels.filter((_, andere) => andere !== index));
-  };
-
-  const voegSymboolIn = (latex: string) => {
-    const veld =
-      veldenRef.current.get(actiefIndexRef.current) ?? veldenRef.current.get(regels.length - 1);
-    if (!veld) return;
-    veld.insert(latex);
-    veld.focus();
   };
 
   return (
@@ -72,13 +40,6 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
             autoFocus={index === regels.length - 1 && index > 0}
             uitgeschakeld={uitgeschakeld}
             onWijzig={(waarde) => wijzigRegel(index, waarde)}
-            onActief={() => {
-              actiefIndexRef.current = index;
-            }}
-            registreer={(element) => {
-              if (element) veldenRef.current.set(index, element);
-              else veldenRef.current.delete(index);
-            }}
           />
           {regels.length > 1 && !uitgeschakeld && (
             <button
@@ -94,29 +55,9 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
       ))}
 
       {!uitgeschakeld && (
-        <>
-          <button type="button" className="mathinvoer-nieuweregel" onClick={voegRegelToe}>
-            + Volgende stap
-          </button>
-          <div className="symbolenbalk" role="toolbar" aria-label="Wiskundige symbolen">
-            {SYMBOLEN.map((symbool) => (
-              <button
-                type="button"
-                key={symbool.label}
-                // Invoegen direct bij pointerdown, mét preventDefault: zo
-                // houdt het invoerveld de focus/cursorpositie. (Invoegen via
-                // onClick werkt niet op iOS: preventDefault op pointerdown
-                // onderdrukt daar het click-event.)
-                onPointerDown={(gebeurtenis) => {
-                  gebeurtenis.preventDefault();
-                  voegSymboolIn(symbool.latex);
-                }}
-              >
-                {symbool.label}
-              </button>
-            ))}
-          </div>
-        </>
+        <button type="button" className="mathinvoer-nieuweregel" onClick={voegRegelToe}>
+          + Volgende stap
+        </button>
       )}
     </div>
   );
@@ -127,30 +68,23 @@ interface RegelProps {
   autoFocus: boolean;
   uitgeschakeld?: boolean;
   onWijzig: (waarde: string) => void;
-  onActief: () => void;
-  registreer: (element: MathfieldElement | null) => void;
 }
 
-function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, registreer }: RegelProps) {
+function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig }: RegelProps) {
   const ref = useRef<MathfieldElement | null>(null);
-  // Callbacks via refs, zodat de event-listeners maar één keer worden
-  // gekoppeld maar altijd de nieuwste callback aanroepen.
+  // Callback via ref, zodat de event-listener maar één keer wordt
+  // gekoppeld maar altijd de nieuwste callback aanroept.
   const wijzigRef = useRef(onWijzig);
   wijzigRef.current = onWijzig;
-  const actiefRef = useRef(onActief);
-  actiefRef.current = onActief;
 
   useEffect(() => {
     const veld = ref.current;
     if (!veld) return;
     const invoerHandler = () => wijzigRef.current(veld.getValue('latex'));
-    const focusHandler = () => actiefRef.current();
     veld.addEventListener('input', invoerHandler);
-    veld.addEventListener('focusin', focusHandler);
     if (autoFocus) veld.focus();
     return () => {
       veld.removeEventListener('input', invoerHandler);
-      veld.removeEventListener('focusin', focusHandler);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -175,7 +109,6 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, regis
     <math-field
       ref={(element: MathfieldElement | null) => {
         ref.current = element;
-        registreer(element);
       }}
     />
   );
