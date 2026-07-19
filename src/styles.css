@@ -426,6 +426,30 @@ math-field:focus-within {
   outline-offset: 1px;
 }
 
+.tekstregel {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 10px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--achtergrond);
+  color: var(--tekst);
+  resize: none;
+}
+
+.tekstregel:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.mathinvoer-knoppen {
+  display: flex;
+  gap: 8px;
+}
+
 .mathinvoer-verwijder {
   border: none;
   background: none;

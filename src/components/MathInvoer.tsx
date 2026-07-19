@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react';
 import type { MathfieldElement } from 'mathlive';
+import type { UitwerkingRegel } from '../types';
 
-// Wiskundige invoer met MathLive:
-// - Elke regel is één <math-field> (stap of antwoord). MathLive is
-//   single-expression, dus meerdere stappen = meerdere regels; samen
-//   vormen ze één invoergebied voor uitwerking + antwoord.
-// - MathLive toont op aanraakschermen automatisch zijn ingebouwde
-//   wiskundige toetsenbord met alle benodigde tekens (incl. shift,
-//   zie logica/shiftfix.ts voor de iOS-reparatie).
-// - De formulebalk eronder geeft snelle toegang tot letters en
-//   notatie die vaak in formules voorkomen; tikken voegt in op de
-//   cursorpositie van het laatst actieve veld.
+// Invoer van de uitwerking:
+// - Elke regel is óf een wiskundestap (MathLive <math-field>) óf gewone
+//   tekst (textarea) voor uitleg in woorden.
+// - MathLive toont op aanraakschermen zijn ingebouwde wiskundige
+//   toetsenbord (incl. shift, zie logica/shiftfix.ts); tekstregels
+//   gebruiken het normale iOS-toetsenbord.
+// - Enter in een wiskundeveld maakt een nieuwe wiskunderegel; de
+//   spatiebalk voegt in wiskunde een spatie in (mathModeSpace).
+// - De formulebalk voegt veelgebruikte tekens in op de cursorpositie.
 
 // De app beheert het virtuele toetsenbord zelf (policy 'manual'):
 // standaard verbergt MathLive het toetsenbord zodra het veld de focus
@@ -33,8 +33,8 @@ const FORMULE_TEKENS: { label: string; latex: string }[] = [
 ];
 
 interface Props {
-  regels: string[];
-  onRegels: (regels: string[]) => void;
+  regels: UitwerkingRegel[];
+  onRegels: (regels: UitwerkingRegel[]) => void;
   uitgeschakeld?: boolean;
 }
 
@@ -42,14 +42,14 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
   const veldenRef = useRef<Map<number, MathfieldElement>>(new Map());
   const actiefIndexRef = useRef(0);
 
-  const wijzigRegel = (index: number, waarde: string) => {
+  const wijzigRegel = (index: number, inhoud: string) => {
     const kopie = [...regels];
-    kopie[index] = waarde;
+    kopie[index] = { ...kopie[index], inhoud };
     onRegels(kopie);
   };
 
-  const voegRegelToe = () => {
-    onRegels([...regels, '']);
+  const voegRegelToe = (soort: UitwerkingRegel['soort']) => {
+    onRegels([...regels, { soort, inhoud: '' }]);
   };
 
   const verwijderRegel = (index: number) => {
@@ -59,7 +59,8 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
 
   const voegIn = (latex: string) => {
     const veld =
-      veldenRef.current.get(actiefIndexRef.current) ?? veldenRef.current.get(regels.length - 1);
+      veldenRef.current.get(actiefIndexRef.current) ??
+      [...veldenRef.current.values()].pop();
     if (!veld) return;
     veld.insert(latex);
     veld.focus();
@@ -78,19 +79,37 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
       {regels.map((regel, index) => (
         <div className="mathinvoer-regel" key={index}>
           <span className="mathinvoer-nummer">{index + 1}</span>
-          <RegelVeld
-            waarde={regel}
-            autoFocus={index === regels.length - 1 && index > 0}
-            uitgeschakeld={uitgeschakeld}
-            onWijzig={(waarde) => wijzigRegel(index, waarde)}
-            onActief={() => {
-              actiefIndexRef.current = index;
-            }}
-            registreer={(element) => {
-              if (element) veldenRef.current.set(index, element);
-              else veldenRef.current.delete(index);
-            }}
-          />
+          {regel.soort === 'wiskunde' ? (
+            <RegelVeld
+              waarde={regel.inhoud}
+              autoFocus={index === regels.length - 1 && index > 0}
+              uitgeschakeld={uitgeschakeld}
+              onWijzig={(inhoud) => wijzigRegel(index, inhoud)}
+              onEnter={() => voegRegelToe('wiskunde')}
+              onActief={() => {
+                actiefIndexRef.current = index;
+              }}
+              registreer={(element) => {
+                if (element) veldenRef.current.set(index, element);
+                else veldenRef.current.delete(index);
+              }}
+            />
+          ) : (
+            <textarea
+              className="tekstregel"
+              rows={2}
+              placeholder="Uitleg in gewone taal…"
+              value={regel.inhoud}
+              disabled={uitgeschakeld}
+              autoFocus={index === regels.length - 1 && index > 0}
+              onChange={(gebeurtenis) => wijzigRegel(index, gebeurtenis.target.value)}
+              onFocus={() => {
+                actiefIndexRef.current = index;
+                // Tekstregels gebruiken het gewone iOS-toetsenbord.
+                virtueelToetsenbord().hide();
+              }}
+            />
+          )}
           {regels.length > 1 && !uitgeschakeld && (
             <button
               type="button"
@@ -106,9 +125,14 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
 
       {!uitgeschakeld && (
         <>
-          <button type="button" className="mathinvoer-nieuweregel" onClick={voegRegelToe}>
-            + Volgende stap
-          </button>
+          <div className="mathinvoer-knoppen">
+            <button type="button" className="mathinvoer-nieuweregel" onClick={() => voegRegelToe('wiskunde')}>
+              + Volgende stap
+            </button>
+            <button type="button" className="mathinvoer-nieuweregel" onClick={() => voegRegelToe('tekst')}>
+              + Tekst
+            </button>
+          </div>
           <div className="formulebalk" role="toolbar" aria-label="Veelgebruikte formule-onderdelen">
             {FORMULE_TEKENS.map((teken) => (
               <button
@@ -138,16 +162,19 @@ interface RegelProps {
   autoFocus: boolean;
   uitgeschakeld?: boolean;
   onWijzig: (waarde: string) => void;
+  onEnter: () => void;
   onActief: () => void;
   registreer: (element: MathfieldElement | null) => void;
 }
 
-function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, registreer }: RegelProps) {
+function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onEnter, onActief, registreer }: RegelProps) {
   const ref = useRef<MathfieldElement | null>(null);
   // Callbacks via refs, zodat de event-listeners maar één keer worden
   // gekoppeld maar altijd de nieuwste callback aanroepen.
   const wijzigRef = useRef(onWijzig);
   wijzigRef.current = onWijzig;
+  const enterRef = useRef(onEnter);
+  enterRef.current = onEnter;
   const actiefRef = useRef(onActief);
   actiefRef.current = onActief;
 
@@ -157,7 +184,13 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, regis
     // 'manual': de app bepaalt zelf wanneer het toetsenbord zichtbaar is,
     // zodat een focus-hikje (bijv. tik op de snelbalk) hem niet sluit.
     veld.mathVirtualKeyboardPolicy = 'manual';
+    // Spatiebalk in wiskunde: voeg een echte spatie in (standaard doet
+    // de spatie in math-modus niets).
+    veld.mathModeSpace = '\\;';
     const invoerHandler = () => wijzigRef.current(veld.getValue('latex'));
+    // 'change' vuurt wanneer de leerling op Enter/Return drukt:
+    // maak dan een nieuwe wiskunderegel aan.
+    const enterHandler = () => enterRef.current();
     const focusHandler = () => {
       actiefRef.current();
       if (!veld.readOnly) virtueelToetsenbord().show();
@@ -169,11 +202,13 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, regis
       if (!veld.readOnly) virtueelToetsenbord().show();
     };
     veld.addEventListener('input', invoerHandler);
+    veld.addEventListener('change', enterHandler);
     veld.addEventListener('focusin', focusHandler);
     veld.addEventListener('pointerdown', toonHandler);
     if (autoFocus) veld.focus();
     return () => {
       veld.removeEventListener('input', invoerHandler);
+      veld.removeEventListener('change', enterHandler);
       veld.removeEventListener('focusin', focusHandler);
       veld.removeEventListener('pointerdown', toonHandler);
     };

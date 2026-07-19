@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Beoordeling, Onderwerp, Opgave, OpgaveContext, Profiel, VoortgangRecord } from '../types';
+import type {
+  Beoordeling,
+  Onderwerp,
+  Opgave,
+  OpgaveContext,
+  Profiel,
+  UitwerkingRegel,
+  VoortgangRecord,
+} from '../types';
 import { foutMelding, maakAIService } from '../services/aiService';
 import { doelAantalGoed, nieuwRecord, verwerkGoedeOpgave } from '../logica/adaptief';
 import { MathTekst } from './MathTekst';
@@ -32,7 +40,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const [record, setRecord] = useState<VoortgangRecord>(bestaandRecord ?? nieuwRecord(onderwerp.id));
   const [fase, setFase] = useState<Fase>({ naam: 'laden' });
   const [opgave, setOpgave] = useState<Opgave | null>(null);
-  const [regels, setRegels] = useState<string[]>(['']);
+  const [regels, setRegels] = useState<UitwerkingRegel[]>([{ soort: 'wiskunde', inhoud: '' }]);
   const [beoordeling, setBeoordeling] = useState<Beoordeling | null>(null);
   /** Transiënte fout bij het nakijken; de opgave en invoer blijven staan. */
   const [controleFout, setControleFout] = useState<string | null>(null);
@@ -66,7 +74,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
       }
       eerdereOpgavenRef.current = [...eerdereOpgavenRef.current, nieuwe.opgave].slice(-6);
       setOpgave(nieuwe);
-      setRegels(['']);
+      setRegels([{ soort: 'wiskunde', inhoud: '' }]);
       setFase({ naam: 'opgave' });
     } catch (fout) {
       setFase({ naam: 'laadFout', melding: foutMelding(fout) });
@@ -80,7 +88,16 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     void laadOpgave();
   }, [laadOpgave]);
 
-  const uitwerking = regels.map((regel) => regel.trim()).filter(Boolean).join('\n');
+  // Serialisatie voor de AI: wiskunderegels tussen $...$, tekstregels
+  // als gewone tekst — zo kan de nakijker beide goed onderscheiden.
+  const uitwerking = regels
+    .map((regel) => {
+      const inhoud = regel.inhoud.trim();
+      if (!inhoud) return '';
+      return regel.soort === 'wiskunde' ? `$${inhoud}$` : inhoud;
+    })
+    .filter(Boolean)
+    .join('\n');
 
   const kijkNa = async () => {
     if (!opgave || !uitwerking) return;

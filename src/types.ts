@@ -145,6 +145,12 @@ export interface Beoordeling {
   uitwerkingstips: string[];
 }
 
+/** Eén regel van de uitwerking: een wiskundestap (MathLive/LaTeX) of gewone tekst. */
+export interface UitwerkingRegel {
+  soort: 'wiskunde' | 'tekst';
+  inhoud: string;
+}
+
 // ── Voortgang (lokaal opgeslagen, cloud-ready) ───────────────────────────
 
 export interface Poging {

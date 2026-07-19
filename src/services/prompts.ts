@@ -81,7 +81,7 @@ Beoordeel twee dingen:
 Regels:
 - correct is alleen true als antwoordCorrect én uitwerkingCorrect allebei true zijn.
 - Een goed antwoord zonder (voldoende) uitwerking is dus nog niet goed; leg in de feedback uit wat er mist.
-- De uitwerking van de leerling is LaTeX, regel voor regel (elke regel is één stap of het antwoord).
+- In de uitwerking van de leerling staat wiskunde tussen dollartekens ($...$); de rest is gewone tekst. Elke regel is één stap, een stukje uitleg of het antwoord.
 - Accepteer gelijkwaardige notaties (0,5 = 1/2 = $\\frac{1}{2}$; x \\cdot x = x^2) en ook andere geldige oplossingswegen.
 - Kleine taal- of typefouten zijn geen reden om iets fout te rekenen.
 - feedback: maximaal 3 korte zinnen, in het Nederlands op B1-niveau (korte zinnen, gewone woorden, geen vaktermen zonder uitleg).
@@ -101,7 +101,7 @@ ${opgave.verwachtAntwoord}
 VERWACHTE STAPPEN (niet aan de leerling tonen):
 ${opgave.uitwerkingskader}
 
-UITWERKING EN ANTWOORD VAN DE LEERLING (LaTeX, regel per regel):
+UITWERKING EN ANTWOORD VAN DE LEERLING (wiskunde tussen $...$, regel per regel):
 ${uitwerking}`;
 }
 
