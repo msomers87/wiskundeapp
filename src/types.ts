@@ -83,6 +83,11 @@ export interface OpgaveContext {
   onderwerp: Onderwerp;
   /** Huidige moeilijkheidsgraad (1-5). */
   moeilijkheid: number;
+  /**
+   * Recent gegenereerde opgaveteksten in deze sessie. Gaan mee in de
+   * prompt zodat de AI niet dezelfde som nog een keer stelt.
+   */
+  eerdereOpgaven?: string[];
 }
 
 export type FiguurType = 'functiegrafiek' | 'assenstelsel' | 'meetkunde';

@@ -38,6 +38,8 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const [controleFout, setControleFout] = useState<string | null>(null);
   const recordRef = useRef(record);
   recordRef.current = record;
+  /** Recente opgaveteksten van deze sessie (gaan mee in de prompt tegen herhaling). */
+  const eerdereOpgavenRef = useRef<string[]>([]);
 
   const maakContext = useCallback(
     (): OpgaveContext => ({
@@ -47,6 +49,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
       methode: profiel.methode,
       onderwerp,
       moeilijkheid: recordRef.current.huidigNiveau,
+      eerdereOpgaven: eerdereOpgavenRef.current,
     }),
     [profiel, onderwerp],
   );
@@ -55,7 +58,13 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     setFase({ naam: 'laden' });
     setBeoordeling(null);
     try {
-      const nieuwe = await ai.genereerOpgave(maakContext());
+      let nieuwe = await ai.genereerOpgave(maakContext());
+      // Vangnet: is het tóch exact dezelfde opgave als eerder in deze
+      // sessie, vraag dan stilletjes één keer opnieuw.
+      if (eerdereOpgavenRef.current.includes(nieuwe.opgave)) {
+        nieuwe = await ai.genereerOpgave(maakContext());
+      }
+      eerdereOpgavenRef.current = [...eerdereOpgavenRef.current, nieuwe.opgave].slice(-6);
       setOpgave(nieuwe);
       setRegels(['']);
       setFase({ naam: 'opgave' });

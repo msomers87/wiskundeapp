@@ -47,12 +47,13 @@ Regels voor elke opgave:
   - functiegrafiek: formules in x zoals "2*x+3" of "x^2-4" (gebruik * voor keer en ^ voor macht), plus xMin, xMax, yMin en yMax.
   - assenstelsel: alleen punten in een leeg assenstelsel, plus xMin, xMax, yMin en yMax.
   - meetkunde: punten met labels (zoals A, B, C) en lijnstukken tussen coördinaten.
+- Varieer tussen opgaven: wissel getallen, vraagvorm en context af, zodat de leerling niet twee keer (bijna) dezelfde som krijgt.
 - verwachtAntwoord: het juiste eindantwoord, kort en eenduidig.
 - uitwerkingskader: de verwachte oplossingsstappen. Dit is voor de nakijker; de leerling ziet dit niet.`;
 }
 
 function opgaveGebruikersPrompt(context: OpgaveContext): string {
-  return `Maak een opgave over het onderwerp "${context.onderwerp.naam}" (${context.onderwerp.beschrijving}).
+  let prompt = `Maak een opgave over het onderwerp "${context.onderwerp.naam}" (${context.onderwerp.beschrijving}).
 
 Moeilijkheidsgraad: ${context.moeilijkheid} van 5.
 - 1 = eerste kennismaking, één eenvoudige stap
@@ -60,6 +61,14 @@ Moeilijkheidsgraad: ${context.moeilijkheid} van 5.
 - 3 = gemiddelde opgave met meerdere stappen
 - 4 = pittige opgave, ook in context
 - 5 = topniveau voor dit leerjaar, zoals een toets- of examenvraag`;
+  const eerdere = context.eerdereOpgaven ?? [];
+  if (eerdere.length > 0) {
+    prompt += `
+
+Deze opgaven heeft de leerling in deze sessie al gemaakt. Maak een opgave die hier duidelijk van verschilt: andere getallen én een andere vraagstelling of context.
+${eerdere.map((opgave, index) => `${index + 1}. ${opgave}`).join('\n')}`;
+  }
+  return prompt;
 }
 
 function controleSysteemPrompt(context: OpgaveContext): string {
