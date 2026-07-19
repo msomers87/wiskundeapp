@@ -1,10 +1,13 @@
 import type { AITaak } from './aiTaak';
 import type { Methode, Opgave, OpgaveContext } from '../types';
 
-// Gedeelde Claude-module: prompts, JSON-schema's, request-body en
-// response-parser. Wordt gebruikt door ZOWEL de serverless proxy
-// (api/claude.ts) als de directe test-implementatie in de browser,
-// zodat beide gegarandeerd dezelfde aanroepen doen.
+// Claude-module voor de DIRECTE testmodus in de browser: prompts,
+// JSON-schema's, request-body en response-parser.
+//
+// ⚠️ De serverless proxy (api/claude.ts) bevat hiervan bewust een eigen,
+// zelfstandige kopie: Vercel bundelt runtime-imports uit src/ niet
+// betrouwbaar mee in functions (ERR_MODULE_NOT_FOUND). Pas je prompts of
+// schema's aan, wijzig ze dan op BEIDE plekken.
 
 export const CLAUDE_MODEL = 'claude-opus-4-8';
 export const CLAUDE_MAX_TOKENS = 8000;
