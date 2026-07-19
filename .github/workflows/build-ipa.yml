@@ -1,0 +1,58 @@
+# Bouwt WiskundeCoach in de cloud (GitHub macOS-runner) — geen eigen Mac nodig.
+#
+# Resultaat: een ongesigneerde .ipa als download-artifact. Die installeer je
+# op je iPhone met Sideloadly of AltStore (zie README, "Zonder Mac").
+#
+# API-sleutel: maak in de repo een secret ANTHROPIC_API_KEY aan
+# (Settings → Secrets and variables → Actions). De sleutel wordt tijdens het
+# bouwen in de app gezet en komt dus nooit in git terecht.
+name: Build IPA (zonder Mac)
+
+on:
+  push:
+    branches:
+      - claude/wiskundecoach-ios-app-izmye6
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Injecteer API-sleutel (uit repo-secret)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            sed -i '' "s/PLAK_HIER_JE_ANTHROPIC_API_KEY/$ANTHROPIC_API_KEY/" WiskundeCoach/AI/AIConfig.swift
+            echo "API-sleutel ingevuld."
+          else
+            echo "::warning::Geen ANTHROPIC_API_KEY-secret gevonden — de app bouwt wel, maar vraagt bij gebruik om een sleutel."
+          fi
+
+      - name: Bouw app (ongesigneerd, voor sideloaden)
+        run: |
+          xcodebuild \
+            -project WiskundeCoach.xcodeproj \
+            -target WiskundeCoach \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Verpak als .ipa
+        run: |
+          mkdir -p Payload
+          cp -R build/Release-iphoneos/WiskundeCoach.app Payload/
+          zip -qry WiskundeCoach-unsigned.ipa Payload
+
+      - name: Upload .ipa als artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiskundeCoach-ipa
+          path: WiskundeCoach-unsigned.ipa
+          retention-days: 30

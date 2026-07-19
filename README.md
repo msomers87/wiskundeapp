@@ -171,6 +171,23 @@ onaangeraakt — dat is precies waarom de AI-laag achter een protocol zit.
 3. Klaar — het schema voldoet al aan de CloudKit-eisen (defaults, geen
    unieke attributen, optionele relaties).
 
+## Zonder Mac: bouwen in de cloud + sideloaden
+
+Geen Mac? De workflow `.github/workflows/build-ipa.yml` bouwt de app op een
+macOS-runner van GitHub en levert een ongesigneerde `.ipa` als artifact:
+
+1. Zet in de repo een secret `ANTHROPIC_API_KEY` (Settings → Secrets and
+   variables → Actions) — die wordt tijdens het bouwen in de app gezet.
+2. Start de workflow (tab **Actions** → "Build IPA (zonder Mac)" → Run workflow)
+   en download daarna het artifact `WiskundeCoach-ipa`.
+3. Installeer de `.ipa` op je iPhone met **Sideloadly** (Windows/macOS) of
+   **AltStore** — een gewone Windows-pc met iTunes-drivers volstaat, plus een
+   gratis Apple ID. Let op: met een gratis Apple ID werkt de app 7 dagen en
+   moet je daarna opnieuw sideloaden (AltStore kan dit automatisch verversen).
+
+Structureler alternatief: een Apple Developer-account (€99/jaar) + TestFlight;
+de build/upload kan dan ook volledig via GitHub Actions (fastlane) zonder Mac.
+
 ## Gemaakte aannames
 
 - **Eén profiel per toestel** (één leerling); meerdere profielen zijn een
