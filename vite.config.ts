@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     // MathLive laadt zijn wiskunde-fonts los van de bundel; kopieer ze mee.
     viteStaticCopy({
-      targets: [{ src: 'node_modules/mathlive/dist/fonts/*', dest: 'fonts' }],
+      targets: [{ src: 'node_modules/mathlive/fonts/*', dest: 'fonts' }],
     }),
     VitePWA({
       registerType: 'autoUpdate',

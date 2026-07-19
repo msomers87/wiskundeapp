@@ -155,10 +155,13 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, regis
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Externe resets (bijv. nieuwe opgave) doorzetten naar het veld.
+  // Externe resets (bijv. na het verwijderen van een regel) doorzetten
+  // naar het veld — maar NOOIT terwijl de leerling erin typt: een veld
+  // met focus wordt niet overschreven, zodat de app nooit met de eigen
+  // invoer (of het virtuele toetsenbord) kan vechten.
   useEffect(() => {
     const veld = ref.current;
-    if (veld && veld.getValue('latex') !== waarde) {
+    if (veld && !veld.hasFocus() && veld.getValue('latex') !== waarde) {
       veld.setValue(waarde);
     }
   }, [waarde]);
