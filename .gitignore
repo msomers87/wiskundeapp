@@ -1,5 +1,7 @@
 .DS_Store
-xcuserdata/
-*.xcuserstate
-DerivedData/
-build/
+node_modules/
+dist/
+dev-dist/
+.env
+.env.local
+.vercel/

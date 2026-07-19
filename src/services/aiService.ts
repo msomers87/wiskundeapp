@@ -1,0 +1,118 @@
+import type { Beoordeling, Opgave, OpgaveContext } from '../types';
+import type { AITaak } from './aiTaak';
+import { bouwClaudeBody, leesClaudeAntwoord, ClaudeFout } from './prompts';
+
+// De AI-laag achter één interface: componenten/state praten alleen
+// hiermee. Standaard loopt alles via de serverless proxy (/api/claude);
+// de sleutel staat dan als environment variable op de server en is niet
+// zichtbaar in de browser.
+
+export interface AIService {
+  /** Genereert live één open opgave passend bij context en moeilijkheid. */
+  genereerOpgave(context: OpgaveContext): Promise<Opgave>;
+  /** Beoordeelt uitwerking én eindantwoord van de leerling. */
+  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling>;
+}
+
+/** Fout met een leerling-vriendelijke Nederlandse melding. */
+export class AIFout extends Error {}
+
+const TIMEOUT_MS = 120_000;
+
+async function fetchMetTimeout(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (fout) {
+    if (fout instanceof DOMException && fout.name === 'AbortError') {
+      throw new AIFout('Het duurde te lang om een antwoord te krijgen. Probeer het opnieuw.');
+    }
+    throw new AIFout('Geen verbinding. Controleer je internet en probeer het opnieuw.');
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ── Standaard: via de serverless proxy ───────────────────────────────────
+
+class ProxyAIService implements AIService {
+  genereerOpgave(context: OpgaveContext): Promise<Opgave> {
+    return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
+  }
+
+  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling> {
+    return this.roepAan<Beoordeling>({ taak: 'controleerUitwerking', context, opgave, uitwerking });
+  }
+
+  private async roepAan<T>(taak: AITaak): Promise<T> {
+    const antwoord = await fetchMetTimeout('/api/claude', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(taak),
+    });
+    if (!antwoord.ok) {
+      const detail = (await antwoord.json().catch(() => null)) as { fout?: string } | null;
+      throw new AIFout(detail?.fout ?? `De server gaf een fout (code ${antwoord.status}). Probeer het later opnieuw.`);
+    }
+    const data = (await antwoord.json()) as { resultaat: T };
+    return data.resultaat;
+  }
+}
+
+// ── Testoptie: rechtstreeks vanuit de browser (NIET voor publiek) ────────
+
+/**
+ * ⚠️ Alleen voor snel lokaal testen (zie .env.example): de API-sleutel is
+ * hiermee zichtbaar voor iedereen die de site opent. Voor publiek gebruik
+ * hoort de ProxyAIService met server-side sleutel.
+ */
+class DirecteAIService implements AIService {
+  constructor(private readonly apiKey: string) {}
+
+  genereerOpgave(context: OpgaveContext): Promise<Opgave> {
+    return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
+  }
+
+  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling> {
+    return this.roepAan<Beoordeling>({ taak: 'controleerUitwerking', context, opgave, uitwerking });
+  }
+
+  private async roepAan<T>(taak: AITaak): Promise<T> {
+    if (!this.apiKey) {
+      throw new AIFout('Directe modus staat aan, maar VITE_ANTHROPIC_API_KEY is niet ingevuld.');
+    }
+    const antwoord = await fetchMetTimeout('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01',
+        // Vereist voor CORS bij directe browser-aanroepen:
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(bouwClaudeBody(taak)),
+    });
+    if (!antwoord.ok) {
+      throw new AIFout(`De AI-service gaf een fout (code ${antwoord.status}). Probeer het later opnieuw.`);
+    }
+    try {
+      return leesClaudeAntwoord<T>(await antwoord.json());
+    } catch (fout) {
+      throw new AIFout(fout instanceof ClaudeFout ? fout.message : 'Het antwoord van de AI kon niet worden gelezen.');
+    }
+  }
+}
+
+/** Fabriek: kiest de implementatie op basis van de config (zie .env.example). */
+export function maakAIService(): AIService {
+  if (import.meta.env.VITE_DIRECTE_API === 'true') {
+    return new DirecteAIService(import.meta.env.VITE_ANTHROPIC_API_KEY ?? '');
+  }
+  return new ProxyAIService();
+}
+
+export function foutMelding(fout: unknown): string {
+  if (fout instanceof AIFout) return fout.message;
+  return 'Er ging iets mis. Controleer je internetverbinding en probeer het opnieuw.';
+}

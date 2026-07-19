@@ -1,0 +1,557 @@
+/* WiskundeCoach — mobile-first, rustig en modern. */
+
+:root {
+  --accent: #3b5fd9;
+  --accent-donker: #2e4cb0;
+  --groen: #2f9e63;
+  --oranje: #d97a3b;
+  --achtergrond: #f4f6fb;
+  --kaart: #ffffff;
+  --tekst: #1c2333;
+  --tekst-zacht: #6b7280;
+  --rand: #e3e7f0;
+  --raster: #eef1f7;
+  --schaduw: 0 1px 3px rgba(28, 35, 51, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #7d97ec;
+    --accent-donker: #5c79db;
+    --achtergrond: #12151d;
+    --kaart: #1c202b;
+    --tekst: #e8eaf1;
+    --tekst-zacht: #9aa1b0;
+    --rand: #2a3040;
+    --raster: #232837;
+    --schaduw: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--achtergrond);
+  color: var(--tekst);
+  -webkit-font-smoothing: antialiased;
+  /* Ruimte voor de iPhone-notch en home-indicator (standalone PWA). */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#root {
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.scherm {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ── Koppen en layout ─────────────────────────────────────────────────── */
+
+.kop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  position: sticky;
+  top: 0;
+  background: color-mix(in srgb, var(--achtergrond) 88%, transparent);
+  backdrop-filter: blur(12px);
+  z-index: 10;
+}
+
+.kop h1 {
+  font-size: 1.35rem;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kop-knop {
+  border: none;
+  background: var(--kaart);
+  color: var(--tekst);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1;
+  box-shadow: var(--schaduw);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.inhoud {
+  padding: 8px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.inhoud.gecentreerd {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+}
+
+.kaart {
+  background: var(--kaart);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--schaduw);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kaart-kop {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tekst-zacht);
+}
+
+.voetnoot {
+  color: var(--tekst-zacht);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.profielregel {
+  color: var(--tekst-zacht);
+  font-size: 0.88rem;
+  margin: 0 2px;
+}
+
+/* ── Knoppen en formulieren ───────────────────────────────────────────── */
+
+.knop-primair {
+  appearance: none;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 14px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.knop-primair:active {
+  background: var(--accent-donker);
+}
+
+.knop-primair:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.veld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.veld select {
+  appearance: none;
+  font: inherit;
+  font-weight: 500;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--rand);
+  background: var(--achtergrond);
+  color: var(--tekst);
+}
+
+/* ── Onderwerpenlijst ─────────────────────────────────────────────────── */
+
+.onderwerpen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onderwerp-kaart {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: var(--kaart);
+  border: none;
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: var(--schaduw);
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.onderwerp-tekst {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.onderwerp-naam {
+  font-weight: 650;
+}
+
+.onderwerp-beschrijving {
+  color: var(--tekst-zacht);
+  font-size: 0.86rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.onderwerp-vinkje {
+  color: var(--groen);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.onderwerp-pijl {
+  color: var(--tekst-zacht);
+  font-size: 1.4rem;
+}
+
+.voortgangsbalk {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--raster);
+  overflow: hidden;
+}
+
+.voortgangsbalk-vulling {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.voortgangsbalk-vulling.behaald {
+  background: var(--groen);
+}
+
+/* ── Oefenscherm ──────────────────────────────────────────────────────── */
+
+.niveaubalk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 18px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.niveaubolletjes {
+  display: flex;
+  gap: 6px;
+}
+
+.niveaubolletjes i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--rand);
+}
+
+.niveaubolletjes i.vol {
+  background: var(--groen);
+}
+
+.opgavetekst {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.feedback h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.feedback.goed {
+  background: color-mix(in srgb, var(--groen) 12%, var(--kaart));
+}
+
+.feedback.goed h2 {
+  color: var(--groen);
+}
+
+.feedback.fout {
+  background: color-mix(in srgb, var(--oranje) 12%, var(--kaart));
+}
+
+.feedback.fout h2 {
+  color: var(--oranje);
+}
+
+.feedback ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.94rem;
+}
+
+.foutmelding {
+  color: var(--tekst);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.afgerond-vinkje {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--groen);
+  color: #fff;
+  font-size: 3rem;
+  display: grid;
+  place-items: center;
+}
+
+.leegmelding h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.leegmelding code {
+  background: var(--raster);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 0.85em;
+}
+
+/* ── Wiskundige invoer (MathLive) ─────────────────────────────────────── */
+
+.mathinvoer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mathinvoer-regel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mathinvoer-nummer {
+  color: var(--tekst-zacht);
+  font-size: 0.8rem;
+  width: 16px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+math-field {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.15rem;
+  padding: 8px 10px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--achtergrond);
+  --caret-color: var(--accent);
+}
+
+math-field:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.mathinvoer-verwijder {
+  border: none;
+  background: none;
+  color: var(--tekst-zacht);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.mathinvoer-nieuweregel {
+  align-self: flex-start;
+  border: 1px dashed var(--rand);
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.symbolenbalk {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.symbolenbalk button {
+  flex-shrink: 0;
+  min-width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: var(--raster);
+  color: var(--tekst);
+  font-size: 1.05rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  cursor: pointer;
+}
+
+.symbolenbalk button:active {
+  background: var(--rand);
+}
+
+/* ── Figuren (SVG) ────────────────────────────────────────────────────── */
+
+.figuur {
+  background: var(--achtergrond);
+  border-radius: 14px;
+  padding: 6px;
+}
+
+.figuur svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.figuur-raster {
+  stroke: var(--raster);
+  stroke-width: 1;
+}
+
+.figuur-as {
+  stroke: var(--tekst-zacht);
+  stroke-width: 1.3;
+}
+
+.figuur-label {
+  fill: var(--tekst-zacht);
+  font-size: 9px;
+}
+
+.figuur-lijn {
+  stroke: var(--tekst);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.figuur-punt {
+  fill: var(--accent);
+}
+
+.figuur-puntlabel {
+  fill: var(--tekst);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.figuur-legenda {
+  display: flex;
+  gap: 14px;
+  padding: 6px 8px 4px;
+  font-size: 0.82rem;
+  color: var(--tekst-zacht);
+}
+
+.figuur-legenda i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+/* ── Overig ───────────────────────────────────────────────────────────── */
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--rand);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: draai 0.8s linear infinite;
+}
+
+@keyframes draai {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.melding {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--kaart);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 50;
+}
+
+.melding p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.94rem;
+}
+
+.melding button {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
