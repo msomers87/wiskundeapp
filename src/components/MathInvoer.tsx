@@ -12,6 +12,14 @@ import type { MathfieldElement } from 'mathlive';
 //   notatie die vaak in formules voorkomen; tikken voegt in op de
 //   cursorpositie van het laatst actieve veld.
 
+// De app beheert het virtuele toetsenbord zelf (policy 'manual'):
+// standaard verbergt MathLive het toetsenbord zodra het veld de focus
+// verliest, en iOS laat de focus even los bij een tik op de snelbalk —
+// waardoor het toetsenbord dichtklapte tijdens het invoeren.
+const virtueelToetsenbord = () =>
+  (window as unknown as { mathVirtualKeyboard: { show(): void; hide(): void } })
+    .mathVirtualKeyboard;
+
 const FORMULE_TEKENS: { label: string; latex: string }[] = [
   { label: 'x', latex: 'x' },
   { label: 'y', latex: 'y' },
@@ -55,7 +63,15 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
     if (!veld) return;
     veld.insert(latex);
     veld.focus();
+    virtueelToetsenbord().show();
   };
+
+  // Toetsenbord verbergen zodra er niet meer ingevoerd kan worden
+  // (nakijken/feedback) en bij het verlaten van het invoerblok.
+  useEffect(() => {
+    if (uitgeschakeld) virtueelToetsenbord().hide();
+  }, [uitgeschakeld]);
+  useEffect(() => () => virtueelToetsenbord().hide(), []);
 
   return (
     <div className="mathinvoer">
@@ -138,14 +154,28 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onActief, regis
   useEffect(() => {
     const veld = ref.current;
     if (!veld) return;
+    // 'manual': de app bepaalt zelf wanneer het toetsenbord zichtbaar is,
+    // zodat een focus-hikje (bijv. tik op de snelbalk) hem niet sluit.
+    veld.mathVirtualKeyboardPolicy = 'manual';
     const invoerHandler = () => wijzigRef.current(veld.getValue('latex'));
-    const focusHandler = () => actiefRef.current();
+    const focusHandler = () => {
+      actiefRef.current();
+      if (!veld.readOnly) virtueelToetsenbord().show();
+    };
+    // Ook op pointerdown tonen: een tik op een veld dat al focus heeft
+    // geeft geen focusin-event meer, maar moet het toetsenbord wel
+    // terugbrengen (bijv. nadat het handmatig is dichtgeklapt).
+    const toonHandler = () => {
+      if (!veld.readOnly) virtueelToetsenbord().show();
+    };
     veld.addEventListener('input', invoerHandler);
     veld.addEventListener('focusin', focusHandler);
+    veld.addEventListener('pointerdown', toonHandler);
     if (autoFocus) veld.focus();
     return () => {
       veld.removeEventListener('input', invoerHandler);
       veld.removeEventListener('focusin', focusHandler);
+      veld.removeEventListener('pointerdown', toonHandler);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
