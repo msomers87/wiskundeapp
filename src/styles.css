@@ -474,18 +474,6 @@ math-field:focus-within {
   background: var(--rand);
 }
 
-.symbolenbalk .symbool-toggle {
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.symbolenbalk .symbool-toggle[aria-pressed='true'] {
-  background: var(--accent);
-  color: #fff;
-}
-
 /* ── Figuren (SVG) ────────────────────────────────────────────────────── */
 
 .figuur {

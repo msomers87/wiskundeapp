@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { MathfieldElement } from 'mathlive';
 
 // Wiskundige invoer met MathLive:
@@ -29,11 +29,6 @@ const SYMBOLEN: { label: string; latex: string }[] = [
   { label: ')', latex: ')' },
 ];
 
-// Eigen hoofdletterrij: de shift-toets van het ingebouwde MathLive-
-// toetsenbord is op iOS onhandig (klapt direct terug), en hoofdletters
-// zijn nodig voor o.a. puntlabels (A, B, C) in meetkunde.
-const HOOFDLETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
 interface Props {
   regels: string[];
   onRegels: (regels: string[]) => void;
@@ -43,7 +38,6 @@ interface Props {
 export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
   const veldenRef = useRef<Map<number, MathfieldElement>>(new Map());
   const actiefIndexRef = useRef(0);
-  const [toontHoofdletters, setToontHoofdletters] = useState(false);
 
   const wijzigRegel = (index: number, waarde: string) => {
     const kopie = [...regels];
@@ -105,18 +99,6 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
             + Volgende stap
           </button>
           <div className="symbolenbalk" role="toolbar" aria-label="Wiskundige symbolen">
-            <button
-              type="button"
-              className="symbool-toggle"
-              aria-pressed={toontHoofdletters}
-              aria-label="Hoofdletters tonen"
-              onPointerDown={(gebeurtenis) => {
-                gebeurtenis.preventDefault();
-                setToontHoofdletters((huidig) => !huidig);
-              }}
-            >
-              ABC
-            </button>
             {SYMBOLEN.map((symbool) => (
               <button
                 type="button"
@@ -134,22 +116,6 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
               </button>
             ))}
           </div>
-          {toontHoofdletters && (
-            <div className="symbolenbalk" role="toolbar" aria-label="Hoofdletters">
-              {HOOFDLETTERS.map((letter) => (
-                <button
-                  type="button"
-                  key={letter}
-                  onPointerDown={(gebeurtenis) => {
-                    gebeurtenis.preventDefault();
-                    voegSymboolIn(letter);
-                  }}
-                >
-                  {letter}
-                </button>
-              ))}
-            </div>
-          )}
         </>
       )}
     </div>
