@@ -37,6 +37,26 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   const huidigeStreekRef = useRef<{ x: number; y: number }[] | null>(null);
   const historieRef = useRef<PenStreek[][]>([]);
 
+  // Palm rejection:
+  // - Zodra er een stylus (pointerType 'pen') is gezien, tekenen vingers
+  //   en handpalm niet meer mee.
+  // - Er schrijft maar één aanraking tegelijk; een tweede contact
+  //   (meestal de rustende hand) wordt genegeerd.
+  // - Aanrakingen met een groot contactvlak (handpalm) worden geweigerd.
+  const actievePointerRef = useRef<number | null>(null);
+  const actieveSoortRef = useRef<string | null>(null);
+  const stylusGezienRef = useRef(false);
+
+  const isSchrijfContact = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
+    if (gebeurtenis.pointerType === 'pen') {
+      stylusGezienRef.current = true;
+      return true;
+    }
+    if (stylusGezienRef.current) return false;
+    if (gebeurtenis.width > 28 || gebeurtenis.height > 28) return false;
+    return true;
+  };
+
   // Nieuwe opgave (parent maakt de streken leeg): historie mee wissen.
   useEffect(() => {
     if (strepen.length === 0) historieRef.current = [];
@@ -134,6 +154,22 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerDown = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
+    if (!isSchrijfContact(gebeurtenis)) return;
+    if (actievePointerRef.current !== null) {
+      // Er is al een contact actief. Komt er nu een stylus bij terwijl een
+      // vinger/palm aan het "schrijven" was, dan wint de stylus: gooi de
+      // palmstreek weg. Elk ander extra contact wordt genegeerd.
+      if (gebeurtenis.pointerType === 'pen' && actieveSoortRef.current !== 'pen') {
+        huidigeStreekRef.current = null;
+        actievePointerRef.current = null;
+        actieveSoortRef.current = null;
+        tekenAlles();
+      } else {
+        return;
+      }
+    }
+    actievePointerRef.current = gebeurtenis.pointerId;
+    actieveSoortRef.current = gebeurtenis.pointerType;
     gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
     historieRef.current = [...historieRef.current.slice(-49), strepenRef.current];
     const punt = positie(gebeurtenis);
@@ -146,6 +182,7 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerMove = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
+    if (gebeurtenis.pointerId !== actievePointerRef.current) return;
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
       if (gebeurtenis.buttons > 0) gomOp(punt);
@@ -168,7 +205,10 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
     }
   };
 
-  const bijPointerEinde = () => {
+  const bijPointerEinde = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
+    if (gebeurtenis.pointerId !== actievePointerRef.current) return;
+    actievePointerRef.current = null;
+    actieveSoortRef.current = null;
     const streek = huidigeStreekRef.current;
     huidigeStreekRef.current = null;
     if (streek && streek.length > 0) {
