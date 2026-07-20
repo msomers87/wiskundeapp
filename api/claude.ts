@@ -76,7 +76,12 @@ ${eerdere.map((opgave, index) => `${index + 1}. ${opgave}`).join('\n')}`;
   return prompt;
 }
 
-function controleSysteemPrompt(context: OpgaveContext): string {
+function controleSysteemPrompt(context: OpgaveContext, metAfbeelding: boolean): string {
+  const uitwerkingsvorm = metAfbeelding
+    ? `- De uitwerking van de leerling is HANDGESCHREVEN en staat in de bijgevoegde afbeelding. Lees het handschrift zorgvuldig, ook wiskundige notatie zoals breuken, wortels, machten en haakjes.
+- Is een deel van het handschrift echt onleesbaar: reken het niet fout, maar zeg in de feedback welk deel je niet kon lezen en vraag de leerling het duidelijker op te schrijven.`
+    : `- In de uitwerking van de leerling staat wiskunde tussen dollartekens ($...$); de rest is gewone tekst. Elke regel is één stap, een stukje uitleg of het antwoord.`;
+
   return `Je bent een Nederlandse wiskundedocent die het werk nakijkt van een leerling (${niveauTekst(context)}).
 
 Beoordeel twee dingen:
@@ -86,7 +91,7 @@ Beoordeel twee dingen:
 Regels:
 - correct is alleen true als antwoordCorrect én uitwerkingCorrect allebei true zijn.
 - Een goed antwoord zonder (voldoende) uitwerking is dus nog niet goed; leg in de feedback uit wat er mist.
-- In de uitwerking van de leerling staat wiskunde tussen dollartekens ($...$); de rest is gewone tekst. Elke regel is één stap, een stukje uitleg of het antwoord.
+${uitwerkingsvorm}
 - Accepteer gelijkwaardige notaties (0,5 = 1/2 = $\\frac{1}{2}$; x \\cdot x = x^2) en ook andere geldige oplossingswegen.
 - Kleine taal- of typefouten zijn geen reden om iets fout te rekenen.
 - feedback: maximaal 3 korte zinnen, in het Nederlands op B1-niveau (korte zinnen, gewone woorden, geen vaktermen zonder uitleg).
@@ -96,7 +101,12 @@ Regels:
 - Wiskunde in feedback en tips mag tussen $...$ met KaTeX-compatibele LaTeX.`;
 }
 
-function controleGebruikersPrompt(opgave: Opgave, uitwerking: string): string {
+function controleGebruikersPrompt(opgave: Opgave, uitwerking: string, metAfbeelding: boolean): string {
+  const uitwerkingsblok = metAfbeelding
+    ? 'UITWERKING EN ANTWOORD VAN DE LEERLING: zie de bijgevoegde afbeelding (handgeschreven).'
+    : `UITWERKING EN ANTWOORD VAN DE LEERLING (wiskunde tussen $...$, regel per regel):
+${uitwerking}`;
+
   return `OPGAVE:
 ${opgave.opgave}
 
@@ -106,8 +116,7 @@ ${opgave.verwachtAntwoord}
 VERWACHTE STAPPEN (niet aan de leerling tonen):
 ${opgave.uitwerkingskader}
 
-UITWERKING EN ANTWOORD VAN DE LEERLING (wiskunde tussen $...$, regel per regel):
-${uitwerking}`;
+${uitwerkingsblok}`;
 }
 
 // ── JSON-schema's (structured outputs) ───────────────────────────────────
@@ -188,6 +197,7 @@ const beoordelingSchema = {
 // ── Request-body en response-parser ──────────────────────────────────────
 
 function bouwClaudeBody(taak: AITaak): Record<string, unknown> {
+  const metAfbeelding = taak.taak === 'controleerUitwerking' && Boolean(taak.uitwerkingAfbeelding);
   const { systeem, gebruiker, schema } =
     taak.taak === 'genereerOpgave'
       ? {
@@ -196,10 +206,23 @@ function bouwClaudeBody(taak: AITaak): Record<string, unknown> {
           schema: opgaveSchema,
         }
       : {
-          systeem: controleSysteemPrompt(taak.context),
-          gebruiker: controleGebruikersPrompt(taak.opgave, taak.uitwerking),
+          systeem: controleSysteemPrompt(taak.context, metAfbeelding),
+          gebruiker: controleGebruikersPrompt(taak.opgave, taak.uitwerking, metAfbeelding),
           schema: beoordelingSchema,
         };
+
+  // Bij een handgeschreven uitwerking gaat de afbeelding als image-blok
+  // vóór de tekst mee in het bericht.
+  const inhoud: unknown =
+    taak.taak === 'controleerUitwerking' && taak.uitwerkingAfbeelding
+      ? [
+          {
+            type: 'image',
+            source: { type: 'base64', media_type: 'image/png', data: taak.uitwerkingAfbeelding },
+          },
+          { type: 'text', text: gebruiker },
+        ]
+      : gebruiker;
 
   return {
     model: CLAUDE_MODEL,
@@ -207,7 +230,7 @@ function bouwClaudeBody(taak: AITaak): Record<string, unknown> {
     thinking: { type: 'adaptive' },
     output_config: { effort: 'medium', format: { type: 'json_schema', schema } },
     system: systeem,
-    messages: [{ role: 'user', content: gebruiker }],
+    messages: [{ role: 'user', content: inhoud }],
   };
 }
 

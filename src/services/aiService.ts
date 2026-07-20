@@ -10,8 +10,17 @@ import { bouwClaudeBody, leesClaudeAntwoord, ClaudeFout } from './prompts';
 export interface AIService {
   /** Genereert live één open opgave passend bij context en moeilijkheid. */
   genereerOpgave(context: OpgaveContext): Promise<Opgave>;
-  /** Beoordeelt uitwerking én eindantwoord van de leerling. */
-  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling>;
+  /**
+   * Beoordeelt uitwerking én eindantwoord van de leerling.
+   * `uitwerkingAfbeelding`: base64-PNG van een handgeschreven uitwerking
+   * (schrijfmodus); de AI leest die dan uit de afbeelding.
+   */
+  controleerUitwerking(
+    opgave: Opgave,
+    uitwerking: string,
+    context: OpgaveContext,
+    uitwerkingAfbeelding?: string,
+  ): Promise<Beoordeling>;
 }
 
 /** Fout met een leerling-vriendelijke Nederlandse melding. */
@@ -41,8 +50,19 @@ class ProxyAIService implements AIService {
     return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
   }
 
-  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling> {
-    return this.roepAan<Beoordeling>({ taak: 'controleerUitwerking', context, opgave, uitwerking });
+  controleerUitwerking(
+    opgave: Opgave,
+    uitwerking: string,
+    context: OpgaveContext,
+    uitwerkingAfbeelding?: string,
+  ): Promise<Beoordeling> {
+    return this.roepAan<Beoordeling>({
+      taak: 'controleerUitwerking',
+      context,
+      opgave,
+      uitwerking,
+      uitwerkingAfbeelding,
+    });
   }
 
   private async roepAan<T>(taak: AITaak): Promise<T> {
@@ -74,8 +94,19 @@ class DirecteAIService implements AIService {
     return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
   }
 
-  controleerUitwerking(opgave: Opgave, uitwerking: string, context: OpgaveContext): Promise<Beoordeling> {
-    return this.roepAan<Beoordeling>({ taak: 'controleerUitwerking', context, opgave, uitwerking });
+  controleerUitwerking(
+    opgave: Opgave,
+    uitwerking: string,
+    context: OpgaveContext,
+    uitwerkingAfbeelding?: string,
+  ): Promise<Beoordeling> {
+    return this.roepAan<Beoordeling>({
+      taak: 'controleerUitwerking',
+      context,
+      opgave,
+      uitwerking,
+      uitwerkingAfbeelding,
+    });
   }
 
   private async roepAan<T>(taak: AITaak): Promise<T> {

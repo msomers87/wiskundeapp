@@ -12,6 +12,7 @@ import { foutMelding, maakAIService } from '../services/aiService';
 import { doelAantalGoed, nieuwRecord, verwerkGoedeOpgave } from '../logica/adaptief';
 import { MathTekst } from './MathTekst';
 import { MathInvoer } from './MathInvoer';
+import { SchrijfVeld, type PenStreek } from './SchrijfVeld';
 import { FiguurWeergave } from './FiguurWeergave';
 
 // Het oefenscherm: opgave laden → invoeren → nakijken → feedback →
@@ -41,6 +42,11 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const [fase, setFase] = useState<Fase>({ naam: 'laden' });
   const [opgave, setOpgave] = useState<Opgave | null>(null);
   const [regels, setRegels] = useState<UitwerkingRegel[]>([{ soort: 'wiskunde', inhoud: '' }]);
+  /** Invoermodus: typen (MathLive) of schrijven (canvas). Blijft staan per sessie. */
+  const [invoermodus, setInvoermodus] = useState<'typen' | 'schrijven'>('typen');
+  const [strepen, setStrepen] = useState<PenStreek[]>([]);
+  /** Exportfunctie van het schrijfveld (tekening → base64-PNG). */
+  const schrijfExportRef = useRef<(() => string | null) | null>(null);
   const [beoordeling, setBeoordeling] = useState<Beoordeling | null>(null);
   /** Transiënte fout bij het nakijken; de opgave en invoer blijven staan. */
   const [controleFout, setControleFout] = useState<string | null>(null);
@@ -75,6 +81,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
       eerdereOpgavenRef.current = [...eerdereOpgavenRef.current, nieuwe.opgave].slice(-6);
       setOpgave(nieuwe);
       setRegels([{ soort: 'wiskunde', inhoud: '' }]);
+      setStrepen([]);
       setFase({ naam: 'opgave' });
     } catch (fout) {
       setFase({ naam: 'laadFout', melding: foutMelding(fout) });
@@ -99,11 +106,27 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     .filter(Boolean)
     .join('\n');
 
+  const kanInzenden = invoermodus === 'typen' ? Boolean(uitwerking) : strepen.length > 0;
+
   const kijkNa = async () => {
-    if (!opgave || !uitwerking) return;
+    if (!opgave || !kanInzenden) return;
+    // Schrijfmodus: exporteer de tekening als PNG voor de AI.
+    let uitwerkingAfbeelding: string | undefined;
+    let uitwerkingVoorAI = uitwerking;
+    if (invoermodus === 'schrijven') {
+      const png = schrijfExportRef.current?.();
+      if (!png) return;
+      uitwerkingAfbeelding = png;
+      uitwerkingVoorAI = 'Handgeschreven uitwerking (zie afbeelding).';
+    }
     setFase({ naam: 'controleren' });
     try {
-      const resultaat = await ai.controleerUitwerking(opgave, uitwerking, maakContext());
+      const resultaat = await ai.controleerUitwerking(
+        opgave,
+        uitwerkingVoorAI,
+        maakContext(),
+        uitwerkingAfbeelding,
+      );
       setBeoordeling(resultaat);
 
       // Poging vastleggen + adaptieve regels toepassen (pure functies).
@@ -113,7 +136,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
           ...record.pogingen,
           {
             datum: new Date().toISOString(),
-            uitwerking,
+            uitwerking: uitwerkingVoorAI,
             correct: resultaat.correct,
             feedback: resultaat.feedback,
             moeilijkheid: record.huidigNiveau,
@@ -251,13 +274,36 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
 
             {(fase.naam === 'opgave' || fase.naam === 'controleren') && (
               <section className="kaart">
-                <h2 className="kaart-kop">Jouw uitwerking en antwoord</h2>
-                <MathInvoer regels={regels} onRegels={setRegels} uitgeschakeld={fase.naam === 'controleren'} />
+                <div className="kaart-kop-rij">
+                  <h2 className="kaart-kop">Jouw uitwerking en antwoord</h2>
+                  <button
+                    type="button"
+                    className="modus-knop"
+                    onClick={() =>
+                      setInvoermodus((huidig) => (huidig === 'typen' ? 'schrijven' : 'typen'))
+                    }
+                    disabled={fase.naam === 'controleren'}
+                  >
+                    {invoermodus === 'typen' ? '✏️ Schrijven' : '⌨️ Typen'}
+                  </button>
+                </div>
+                {invoermodus === 'typen' ? (
+                  <MathInvoer regels={regels} onRegels={setRegels} uitgeschakeld={fase.naam === 'controleren'} />
+                ) : (
+                  <SchrijfVeld
+                    strepen={strepen}
+                    onStrepen={setStrepen}
+                    uitgeschakeld={fase.naam === 'controleren'}
+                    registreerExport={(exporteer) => {
+                      schrijfExportRef.current = exporteer;
+                    }}
+                  />
+                )}
                 <button
                   type="button"
                   className="knop-primair"
                   onClick={() => void kijkNa()}
-                  disabled={fase.naam === 'controleren' || !uitwerking}
+                  disabled={fase.naam === 'controleren' || !kanInzenden}
                 >
                   {fase.naam === 'controleren' ? 'Nakijken…' : 'Kijk na'}
                 </button>

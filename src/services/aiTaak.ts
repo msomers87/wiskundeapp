@@ -7,4 +7,11 @@ import type { Opgave, OpgaveContext } from '../types';
  */
 export type AITaak =
   | { taak: 'genereerOpgave'; context: OpgaveContext }
-  | { taak: 'controleerUitwerking'; context: OpgaveContext; opgave: Opgave; uitwerking: string };
+  | {
+      taak: 'controleerUitwerking';
+      context: OpgaveContext;
+      opgave: Opgave;
+      uitwerking: string;
+      /** Base64-PNG (zonder data:-prefix) van een handgeschreven uitwerking. */
+      uitwerkingAfbeelding?: string;
+    };

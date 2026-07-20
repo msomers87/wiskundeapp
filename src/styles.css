@@ -473,6 +473,75 @@ math-field:focus-within {
   cursor: pointer;
 }
 
+.kaart-kop-rij {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modus-knop {
+  border: 1px solid var(--rand);
+  background: var(--achtergrond);
+  color: var(--tekst);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Schrijfmodus ─────────────────────────────────────────────────────── */
+
+.schrijfveld {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schrijf-werkbalk {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.schrijf-werkbalk button {
+  border: 1px solid var(--rand);
+  background: var(--achtergrond);
+  color: var(--tekst);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.schrijf-werkbalk button[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.schrijf-werkbalk button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.schrijf-canvas {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--achtergrond);
+  color: var(--tekst); /* inktkleur op het scherm */
+  /* Belangrijk: geen scroll/zoom-gebaren op het canvas, anders breekt
+     het schrijven af met pointercancel. */
+  touch-action: none;
+}
+
 .formulebalk {
   display: flex;
   gap: 6px;
