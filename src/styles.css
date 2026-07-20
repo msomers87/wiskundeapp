@@ -479,6 +479,8 @@ math-field:focus-within {
   overflow-x: auto;
   padding: 2px;
   -webkit-overflow-scrolling: touch;
+  /* Houd het scrollen binnen de balk (geen doorgeven aan de pagina). */
+  overscroll-behavior-x: contain;
 }
 
 .formulebalk button {

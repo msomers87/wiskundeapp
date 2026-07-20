@@ -138,14 +138,12 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
               <button
                 type="button"
                 key={teken.label}
-                // Invoegen direct bij pointerdown, mét preventDefault: zo
-                // houdt het invoerveld de focus/cursorpositie. (Invoegen via
-                // onClick werkt niet op iOS: preventDefault op pointerdown
-                // onderdrukt daar het click-event.)
-                onPointerDown={(gebeurtenis) => {
-                  gebeurtenis.preventDefault();
-                  voegIn(teken.latex);
-                }}
+                // Bewust een gewone click (geen pointerdown): de browser
+                // onderscheidt zelf tikken van scrollen, dus een veeg over
+                // de balk voegt niets in en de scroll blijft soepel. De
+                // cursorpositie gaat niet verloren: voegIn() focust het
+                // laatst actieve veld en MathLive onthoudt de caret.
+                onClick={() => voegIn(teken.latex)}
               >
                 {teken.label}
               </button>
