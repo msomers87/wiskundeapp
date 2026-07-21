@@ -43,9 +43,16 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   // - Er schrijft maar één aanraking tegelijk; een tweede contact
   //   (meestal de rustende hand) wordt genegeerd.
   // - Aanrakingen met een groot contactvlak (handpalm) worden geweigerd.
+  //
+  // Scrollen: zodra er ergens op het scherm een extra contact rust (de
+  // schrijfhand, een duim op de rand) ziet de browser een vingerveeg niet
+  // meer als scrollgebaar — de pagina lijkt dan "vastgelopen". Daarom
+  // scrollen we hier zelf: een kleine vinger op het canvas scrolt de
+  // pagina (in stylus-modus), en zonder stylus doet een tweede vinger dat.
   const actievePointerRef = useRef<number | null>(null);
   const actieveSoortRef = useRef<string | null>(null);
   const stylusGezienRef = useRef(false);
+  const scrollPointerRef = useRef<{ id: number; vorigeY: number } | null>(null);
 
   const isSchrijfContact = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (gebeurtenis.pointerType === 'pen') {
@@ -179,9 +186,28 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
     }
   };
 
+  /** Kleine vinger die niet mag schrijven: laat die de pagina scrollen. */
+  const startScroll = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
+    if (scrollPointerRef.current !== null) return;
+    scrollPointerRef.current = { id: gebeurtenis.pointerId, vorigeY: gebeurtenis.clientY };
+    try {
+      gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+    } catch {
+      // Zonder capture stopt het scrollen bij de rand van het canvas.
+    }
+  };
+
+  const isKleineVinger = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) =>
+    gebeurtenis.pointerType !== 'pen' && gebeurtenis.width <= 28 && gebeurtenis.height <= 28;
+
   const bijPointerDown = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
-    if (!isSchrijfContact(gebeurtenis)) return;
+    if (!isSchrijfContact(gebeurtenis)) {
+      // In stylus-modus schrijven vingers niet; een kleine vinger (geen
+      // handpalm) scrolt in plaats daarvan de pagina.
+      if (isKleineVinger(gebeurtenis)) startScroll(gebeurtenis);
+      return;
+    }
     if (actievePointerRef.current !== null) {
       // Er is al een contact actief.
       if (gebeurtenis.pointerId === actievePointerRef.current) {
@@ -193,6 +219,12 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
         // Een stylus wint van een vinger/palm die aan het "schrijven"
         // was: gooi de palmstreek weg.
         stopStreek(gebeurtenis.currentTarget, false);
+      } else if (actieveSoortRef.current !== 'pen' && isKleineVinger(gebeurtenis)) {
+        // Zonder stylus: een tweede vinger erbij is een scrollgebaar,
+        // geen tweede pen. De begonnen vingerstreek vervalt.
+        stopStreek(gebeurtenis.currentTarget, false);
+        startScroll(gebeurtenis);
+        return;
       } else {
         // Elk ander extra contact (meestal de rustende hand) negeren.
         return;
@@ -217,6 +249,12 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerMove = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
+    const scroller = scrollPointerRef.current;
+    if (scroller && gebeurtenis.pointerId === scroller.id) {
+      window.scrollBy(0, scroller.vorigeY - gebeurtenis.clientY);
+      scroller.vorigeY = gebeurtenis.clientY;
+      return;
+    }
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
     if (gebeurtenis.buttons === 0) {
       // De actieve pointer beweegt zonder het scherm te raken: de
@@ -249,6 +287,10 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   };
 
   const bijPointerEinde = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
+    if (scrollPointerRef.current?.id === gebeurtenis.pointerId) {
+      scrollPointerRef.current = null;
+      return;
+    }
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
     stopStreek(gebeurtenis.currentTarget, true);
   };
@@ -293,7 +335,8 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
       <canvas
         ref={canvasRef}
         className="schrijf-canvas"
-        style={{ height: hoogte }}
+        // Uitgeschakeld canvas eist geen aanrakingen op (scrollt gewoon).
+        style={{ height: hoogte, touchAction: uitgeschakeld ? 'auto' : undefined }}
         onPointerDown={bijPointerDown}
         onPointerMove={bijPointerMove}
         onPointerUp={bijPointerEinde}
