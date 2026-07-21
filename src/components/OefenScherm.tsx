@@ -119,7 +119,11 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     let uitwerkingVoorAI = uitwerking;
     if (invoermodus === 'schrijven') {
       const png = schrijfExportRef.current?.();
-      if (!png) return;
+      if (!png) {
+        // Niet stil niets doen: dan lijkt de knop "vastgelopen".
+        setControleFout('Het lukte niet om je geschreven uitwerking te lezen. Probeer het opnieuw.');
+        return;
+      }
       uitwerkingAfbeelding = png;
       uitwerkingVoorAI = 'Handgeschreven uitwerking (zie afbeelding).';
     }

@@ -46,6 +46,9 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   const actievePointerRef = useRef<number | null>(null);
   const actieveSoortRef = useRef<string | null>(null);
   const stylusGezienRef = useRef(false);
+  // Vinger die de pagina scrollt terwijl er met een stylus wordt
+  // geschreven (touch-action: none schakelt het native scrollen uit).
+  const scrollPointerRef = useRef<{ id: number; vorigeY: number } | null>(null);
 
   const isSchrijfContact = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (gebeurtenis.pointerType === 'pen') {
@@ -154,23 +157,46 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerDown = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
-    if (!isSchrijfContact(gebeurtenis)) return;
-    if (actievePointerRef.current !== null) {
-      // Er is al een contact actief. Komt er nu een stylus bij terwijl een
-      // vinger/palm aan het "schrijven" was, dan wint de stylus: gooi de
-      // palmstreek weg. Elk ander extra contact wordt genegeerd.
-      if (gebeurtenis.pointerType === 'pen' && actieveSoortRef.current !== 'pen') {
-        huidigeStreekRef.current = null;
-        actievePointerRef.current = null;
-        actieveSoortRef.current = null;
-        tekenAlles();
-      } else {
-        return;
+    if (!isSchrijfContact(gebeurtenis)) {
+      // Kleine vinger terwijl er met een stylus wordt geschreven: die mag
+      // de pagina scrollen, anders is het canvas voor vingers "dood".
+      if (
+        gebeurtenis.pointerType !== 'pen' &&
+        gebeurtenis.width <= 28 &&
+        gebeurtenis.height <= 28 &&
+        scrollPointerRef.current === null
+      ) {
+        scrollPointerRef.current = { id: gebeurtenis.pointerId, vorigeY: gebeurtenis.clientY };
+        try {
+          gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+        } catch {
+          // Zonder capture stopt het scrollen bij de rand van het canvas.
+        }
       }
+      return;
+    }
+    if (actievePointerRef.current !== null) {
+      // Er is al een contact actief. Een stylus wint van een vinger/palm
+      // die aan het "schrijven" was (palmstreek vervalt). En is de capture
+      // van het actieve contact stilletjes verdwenen (pointerup gemist,
+      // bijvoorbeeld door een systeemgebaar), herstel dan: anders blijft
+      // het canvas voorgoed wachten en "loopt het schrijven vast".
+      const penWint = gebeurtenis.pointerType === 'pen' && actieveSoortRef.current !== 'pen';
+      const captureKwijt = !gebeurtenis.currentTarget.hasPointerCapture(actievePointerRef.current);
+      if (!penWint && !captureKwijt) return;
+      huidigeStreekRef.current = null;
+      actievePointerRef.current = null;
+      actieveSoortRef.current = null;
+      tekenAlles();
     }
     actievePointerRef.current = gebeurtenis.pointerId;
     actieveSoortRef.current = gebeurtenis.pointerType;
-    gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+    try {
+      gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+    } catch {
+      // Sommige browsers weigeren capture in randgevallen; schrijven werkt
+      // dan ook zonder, alleen stopt de streek bij de rand van het canvas.
+    }
     historieRef.current = [...historieRef.current.slice(-49), strepenRef.current];
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
@@ -182,6 +208,12 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerMove = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
+    const scroller = scrollPointerRef.current;
+    if (scroller && gebeurtenis.pointerId === scroller.id) {
+      window.scrollBy(0, scroller.vorigeY - gebeurtenis.clientY);
+      scroller.vorigeY = gebeurtenis.clientY;
+      return;
+    }
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
@@ -206,6 +238,10 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   };
 
   const bijPointerEinde = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
+    if (scrollPointerRef.current?.id === gebeurtenis.pointerId) {
+      scrollPointerRef.current = null;
+      return;
+    }
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
     actievePointerRef.current = null;
     actieveSoortRef.current = null;
@@ -261,6 +297,7 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
         onPointerMove={bijPointerMove}
         onPointerUp={bijPointerEinde}
         onPointerCancel={bijPointerEinde}
+        onLostPointerCapture={bijPointerEinde}
         aria-label="Schrijfveld voor je uitwerking"
       />
       {!uitgeschakeld && (
