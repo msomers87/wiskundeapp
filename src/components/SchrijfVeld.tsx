@@ -152,25 +152,60 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
     if (overgebleven.length !== strepenRef.current.length) onStrepen(overgebleven);
   };
 
+  /**
+   * Rondt de actieve streek af (commit of weggooien) en laat de pointer
+   * capture expliciet los. Dat loslaten is belangrijk voor een S Pen: die
+   * houdt hetzelfde pointer-id zolang hij boven het scherm zweeft, en een
+   * hangende capture leidt dan álle penbewegingen naar dit canvas — ook
+   * buiten het schrijfveld, waardoor scrollen met de pen niets meer doet.
+   */
+  const stopStreek = (canvas: HTMLCanvasElement, commit: boolean) => {
+    const id = actievePointerRef.current;
+    const streek = huidigeStreekRef.current;
+    actievePointerRef.current = null;
+    actieveSoortRef.current = null;
+    huidigeStreekRef.current = null;
+    if (id !== null) {
+      try {
+        canvas.releasePointerCapture(id);
+      } catch {
+        // Capture was al weg — prima.
+      }
+    }
+    if (commit && streek && streek.length > 0) {
+      onStrepen([...strepenRef.current, { punten: streek }]);
+    } else if (!commit) {
+      tekenAlles();
+    }
+  };
+
   const bijPointerDown = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
     if (!isSchrijfContact(gebeurtenis)) return;
     if (actievePointerRef.current !== null) {
-      // Er is al een contact actief. Komt er nu een stylus bij terwijl een
-      // vinger/palm aan het "schrijven" was, dan wint de stylus: gooi de
-      // palmstreek weg. Elk ander extra contact wordt genegeerd.
-      if (gebeurtenis.pointerType === 'pen' && actieveSoortRef.current !== 'pen') {
-        huidigeStreekRef.current = null;
-        actievePointerRef.current = null;
-        actieveSoortRef.current = null;
-        tekenAlles();
+      // Er is al een contact actief.
+      if (gebeurtenis.pointerId === actievePointerRef.current) {
+        // Dezelfde pointer opnieuw omlaag: de vorige pointerup is nooit
+        // aangekomen (S Pen die even buiten bereik ging). Rond de oude
+        // streek af en begin gewoon een nieuwe.
+        stopStreek(gebeurtenis.currentTarget, true);
+      } else if (gebeurtenis.pointerType === 'pen' && actieveSoortRef.current !== 'pen') {
+        // Een stylus wint van een vinger/palm die aan het "schrijven"
+        // was: gooi de palmstreek weg.
+        stopStreek(gebeurtenis.currentTarget, false);
       } else {
+        // Elk ander extra contact (meestal de rustende hand) negeren.
         return;
       }
     }
     actievePointerRef.current = gebeurtenis.pointerId;
     actieveSoortRef.current = gebeurtenis.pointerType;
-    gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+    try {
+      gebeurtenis.currentTarget.setPointerCapture(gebeurtenis.pointerId);
+    } catch {
+      // Geen capture (randgeval): schrijven werkt dan ook, alleen stopt
+      // de streek bij de rand van het canvas.
+    }
     historieRef.current = [...historieRef.current.slice(-49), strepenRef.current];
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
@@ -183,9 +218,17 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   const bijPointerMove = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (uitgeschakeld) return;
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
+    if (gebeurtenis.buttons === 0) {
+      // De actieve pointer beweegt zonder het scherm te raken: de
+      // pointerup is gemist (S Pen die buiten bereik ging). Rond de
+      // streek hier af — anders tekent de zwevende pen door én blijft
+      // het canvas de pen opeisen.
+      stopStreek(gebeurtenis.currentTarget, true);
+      return;
+    }
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
-      if (gebeurtenis.buttons > 0) gomOp(punt);
+      gomOp(punt);
       return;
     }
     const streek = huidigeStreekRef.current;
@@ -207,13 +250,7 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
 
   const bijPointerEinde = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (gebeurtenis.pointerId !== actievePointerRef.current) return;
-    actievePointerRef.current = null;
-    actieveSoortRef.current = null;
-    const streek = huidigeStreekRef.current;
-    huidigeStreekRef.current = null;
-    if (streek && streek.length > 0) {
-      onStrepen([...strepenRef.current, { punten: streek }]);
-    }
+    stopStreek(gebeurtenis.currentTarget, true);
   };
 
   const ongedaanMaken = () => {
@@ -261,6 +298,8 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
         onPointerMove={bijPointerMove}
         onPointerUp={bijPointerEinde}
         onPointerCancel={bijPointerEinde}
+        onPointerLeave={bijPointerEinde}
+        onLostPointerCapture={bijPointerEinde}
         aria-label="Schrijfveld voor je uitwerking"
       />
       {!uitgeschakeld && (
