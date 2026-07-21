@@ -20,7 +20,21 @@ export interface AIService {
     uitwerking: string,
     context: OpgaveContext,
     uitwerkingAfbeelding?: string,
+    gegevenHints?: string[],
   ): Promise<Beoordeling>;
+  /**
+   * Geeft hint `hintNummer` (1–3) bij een opgave, passend bij wat de
+   * leerling al heeft ingevuld (`huidigeInvoer` of, in schrijfmodus,
+   * `invoerAfbeelding` als base64-PNG) en verder dan `eerdereHints`.
+   */
+  geefHint(
+    opgave: Opgave,
+    context: OpgaveContext,
+    hintNummer: number,
+    eerdereHints: string[],
+    huidigeInvoer: string,
+    invoerAfbeelding?: string,
+  ): Promise<string>;
 }
 
 /** Fout met een leerling-vriendelijke Nederlandse melding. */
@@ -55,6 +69,7 @@ class ProxyAIService implements AIService {
     uitwerking: string,
     context: OpgaveContext,
     uitwerkingAfbeelding?: string,
+    gegevenHints?: string[],
   ): Promise<Beoordeling> {
     return this.roepAan<Beoordeling>({
       taak: 'controleerUitwerking',
@@ -62,7 +77,28 @@ class ProxyAIService implements AIService {
       opgave,
       uitwerking,
       uitwerkingAfbeelding,
+      gegevenHints,
     });
+  }
+
+  async geefHint(
+    opgave: Opgave,
+    context: OpgaveContext,
+    hintNummer: number,
+    eerdereHints: string[],
+    huidigeInvoer: string,
+    invoerAfbeelding?: string,
+  ): Promise<string> {
+    const { hint } = await this.roepAan<{ hint: string }>({
+      taak: 'geefHint',
+      context,
+      opgave,
+      hintNummer,
+      eerdereHints,
+      huidigeInvoer,
+      invoerAfbeelding,
+    });
+    return hint;
   }
 
   private async roepAan<T>(taak: AITaak): Promise<T> {
@@ -99,6 +135,7 @@ class DirecteAIService implements AIService {
     uitwerking: string,
     context: OpgaveContext,
     uitwerkingAfbeelding?: string,
+    gegevenHints?: string[],
   ): Promise<Beoordeling> {
     return this.roepAan<Beoordeling>({
       taak: 'controleerUitwerking',
@@ -106,7 +143,28 @@ class DirecteAIService implements AIService {
       opgave,
       uitwerking,
       uitwerkingAfbeelding,
+      gegevenHints,
     });
+  }
+
+  async geefHint(
+    opgave: Opgave,
+    context: OpgaveContext,
+    hintNummer: number,
+    eerdereHints: string[],
+    huidigeInvoer: string,
+    invoerAfbeelding?: string,
+  ): Promise<string> {
+    const { hint } = await this.roepAan<{ hint: string }>({
+      taak: 'geefHint',
+      context,
+      opgave,
+      hintNummer,
+      eerdereHints,
+      huidigeInvoer,
+      invoerAfbeelding,
+    });
+    return hint;
   }
 
   private async roepAan<T>(taak: AITaak): Promise<T> {

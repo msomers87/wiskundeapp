@@ -325,6 +325,44 @@ body {
   line-height: 1.6;
 }
 
+.hintkaart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--kaart));
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.hint-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hint-knop {
+  align-self: flex-start;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.hint-knop:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .feedback h2 {
   margin: 0;
   font-size: 1.05rem;

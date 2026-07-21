@@ -6,8 +6,8 @@ import type { Methode, Opgave, OpgaveContext } from '../src/types';
 //
 // De API-sleutel staat als environment variable ANTHROPIC_API_KEY op de
 // server en is dus NIET zichtbaar in de browser. De proxy accepteert
-// uitsluitend de twee app-taken (opgave genereren / uitwerking nakijken)
-// en bouwt de prompts zelf — hij is niet bruikbaar als algemene
+// uitsluitend de app-taken (opgave genereren / uitwerking nakijken /
+// hint geven) en bouwt de prompts zelf — hij is niet bruikbaar als algemene
 // Claude-doorgeefluik. maxDuration staat op 60 s (vercel.json).
 //
 // ⚠️ Dit bestand is bewust ZELFSTANDIG: alleen `import type` (wordt bij
@@ -101,11 +101,24 @@ ${uitwerkingsvorm}
 - Wiskunde in feedback en tips mag tussen $...$ met KaTeX-compatibele LaTeX.`;
 }
 
-function controleGebruikersPrompt(opgave: Opgave, uitwerking: string, metAfbeelding: boolean): string {
+function controleGebruikersPrompt(
+  opgave: Opgave,
+  uitwerking: string,
+  metAfbeelding: boolean,
+  gegevenHints: string[],
+): string {
   const uitwerkingsblok = metAfbeelding
     ? 'UITWERKING EN ANTWOORD VAN DE LEERLING: zie de bijgevoegde afbeelding (handgeschreven).'
     : `UITWERKING EN ANTWOORD VAN DE LEERLING (wiskunde tussen $...$, regel per regel):
 ${uitwerking}`;
+
+  const hintsblok =
+    gegevenHints.length > 0
+      ? `
+
+HINTS DIE DE LEERLING AL HEEFT GEKREGEN (herhaal deze niet in je feedback; bouw erop voort):
+${gegevenHints.map((hint, index) => `${index + 1}. ${hint}`).join('\n')}`
+      : '';
 
   return `OPGAVE:
 ${opgave.opgave}
@@ -114,9 +127,57 @@ VERWACHT ANTWOORD (niet aan de leerling tonen):
 ${opgave.verwachtAntwoord}
 
 VERWACHTE STAPPEN (niet aan de leerling tonen):
-${opgave.uitwerkingskader}
+${opgave.uitwerkingskader}${hintsblok}
 
 ${uitwerkingsblok}`;
+}
+
+// ── Hints ────────────────────────────────────────────────────────────────
+
+function hintSysteemPrompt(context: OpgaveContext): string {
+  return `Je bent een Nederlandse wiskundedocent. Een leerling (${niveauTekst(context)}) werkt aan een opgave en vraagt om een hint.
+
+Opbouw van hints (maximaal 3 per opgave):
+- Hint 1: een klein zetje in de goede denkrichting, zonder de aanpak voor te zeggen.
+- Hint 2: concreter — noem de regel, formule of aanpak die hier past.
+- Hint 3: help op weg met de eerste stap van de uitwerking.
+
+Regels:
+- Verklap NOOIT het eindantwoord, ook niet in hint 3.
+- Elke hint gaat verder dan de vorige; herhaal eerdere hints niet.
+- Heeft de leerling al iets ingevuld: benoem kort wat al goed is en richt de hint op waar het vastloopt. Bij een bijgevoegde afbeelding: lees het handschrift zorgvuldig, ook wiskundige notatie.
+- Nederlands op B1-niveau: maximaal 2 korte zinnen, gewone woorden.
+- Wiskunde mag tussen $...$ met KaTeX-compatibele LaTeX.`;
+}
+
+function hintGebruikersPrompt(taak: Extract<AITaak, { taak: 'geefHint' }>): string {
+  const eerdere =
+    taak.eerdereHints.length > 0
+      ? `
+
+EERDERE HINTS:
+${taak.eerdereHints.map((hint, index) => `${index + 1}. ${hint}`).join('\n')}`
+      : '';
+
+  const invoer = taak.invoerAfbeelding
+    ? 'HUIDIGE INVOER VAN DE LEERLING: zie de bijgevoegde afbeelding (handgeschreven).'
+    : taak.huidigeInvoer.trim()
+      ? `HUIDIGE INVOER VAN DE LEERLING (wiskunde tussen $...$):
+${taak.huidigeInvoer}`
+      : 'HUIDIGE INVOER VAN DE LEERLING: nog niets ingevuld.';
+
+  return `OPGAVE:
+${taak.opgave.opgave}
+
+VERWACHT ANTWOORD (niet verklappen):
+${taak.opgave.verwachtAntwoord}
+
+VERWACHTE STAPPEN (referentie voor jou):
+${taak.opgave.uitwerkingskader}${eerdere}
+
+${invoer}
+
+Geef nu hint ${taak.hintNummer} van maximaal 3.`;
 }
 
 // ── JSON-schema's (structured outputs) ───────────────────────────────────
@@ -194,35 +255,56 @@ const beoordelingSchema = {
   },
 };
 
+const hintSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['hint'],
+  properties: {
+    hint: { type: 'string' },
+  },
+};
+
 // ── Request-body en response-parser ──────────────────────────────────────
 
 function bouwClaudeBody(taak: AITaak): Record<string, unknown> {
-  const metAfbeelding = taak.taak === 'controleerUitwerking' && Boolean(taak.uitwerkingAfbeelding);
-  const { systeem, gebruiker, schema } =
-    taak.taak === 'genereerOpgave'
-      ? {
-          systeem: opgaveSysteemPrompt(taak.context),
-          gebruiker: opgaveGebruikersPrompt(taak.context),
-          schema: opgaveSchema,
-        }
-      : {
-          systeem: controleSysteemPrompt(taak.context, metAfbeelding),
-          gebruiker: controleGebruikersPrompt(taak.opgave, taak.uitwerking, metAfbeelding),
-          schema: beoordelingSchema,
-        };
+  let systeem: string;
+  let gebruiker: string;
+  let schema: object;
+  let afbeelding: string | undefined;
 
-  // Bij een handgeschreven uitwerking gaat de afbeelding als image-blok
-  // vóór de tekst mee in het bericht.
-  const inhoud: unknown =
-    taak.taak === 'controleerUitwerking' && taak.uitwerkingAfbeelding
-      ? [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: 'image/png', data: taak.uitwerkingAfbeelding },
-          },
-          { type: 'text', text: gebruiker },
-        ]
-      : gebruiker;
+  if (taak.taak === 'genereerOpgave') {
+    systeem = opgaveSysteemPrompt(taak.context);
+    gebruiker = opgaveGebruikersPrompt(taak.context);
+    schema = opgaveSchema;
+  } else if (taak.taak === 'controleerUitwerking') {
+    const metAfbeelding = Boolean(taak.uitwerkingAfbeelding);
+    systeem = controleSysteemPrompt(taak.context, metAfbeelding);
+    gebruiker = controleGebruikersPrompt(
+      taak.opgave,
+      taak.uitwerking,
+      metAfbeelding,
+      taak.gegevenHints ?? [],
+    );
+    schema = beoordelingSchema;
+    afbeelding = taak.uitwerkingAfbeelding;
+  } else {
+    systeem = hintSysteemPrompt(taak.context);
+    gebruiker = hintGebruikersPrompt(taak);
+    schema = hintSchema;
+    afbeelding = taak.invoerAfbeelding;
+  }
+
+  // Bij een handgeschreven uitwerking/invoer gaat de afbeelding als
+  // image-blok vóór de tekst mee in het bericht.
+  const inhoud: unknown = afbeelding
+    ? [
+        {
+          type: 'image',
+          source: { type: 'base64', media_type: 'image/png', data: afbeelding },
+        },
+        { type: 'text', text: gebruiker },
+      ]
+    : gebruiker;
 
   return {
     model: CLAUDE_MODEL,
@@ -269,7 +351,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
 
   const taak = req.body as AITaak | undefined;
-  if (taak?.taak !== 'genereerOpgave' && taak?.taak !== 'controleerUitwerking') {
+  if (
+    taak?.taak !== 'genereerOpgave' &&
+    taak?.taak !== 'controleerUitwerking' &&
+    taak?.taak !== 'geefHint'
+  ) {
     res.status(400).json({ fout: 'Onbekende taak.' });
     return;
   }

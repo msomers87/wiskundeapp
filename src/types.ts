@@ -159,6 +159,8 @@ export interface Poging {
   correct: boolean;
   feedback: string;
   moeilijkheid: number;
+  /** Aantal hints dat de leerling bij deze opgave heeft gebruikt. */
+  aantalHints?: number;
 }
 
 export interface VoortgangRecord {

@@ -14,4 +14,18 @@ export type AITaak =
       uitwerking: string;
       /** Base64-PNG (zonder data:-prefix) van een handgeschreven uitwerking. */
       uitwerkingAfbeelding?: string;
+      /** Hints die de leerling bij deze opgave al kreeg (voor de feedback). */
+      gegevenHints?: string[];
+    }
+  | {
+      taak: 'geefHint';
+      context: OpgaveContext;
+      opgave: Opgave;
+      /** 1 = klein zetje, 2 = concreter, 3 = eerste stap (nooit het antwoord). */
+      hintNummer: number;
+      eerdereHints: string[];
+      /** Wat de leerling tot nu toe heeft ingevuld (kan leeg zijn). */
+      huidigeInvoer: string;
+      /** Base64-PNG van de handgeschreven invoer (schrijfmodus). */
+      invoerAfbeelding?: string;
     };

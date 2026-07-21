@@ -50,6 +50,9 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const [beoordeling, setBeoordeling] = useState<Beoordeling | null>(null);
   /** Transiënte fout bij het nakijken; de opgave en invoer blijven staan. */
   const [controleFout, setControleFout] = useState<string | null>(null);
+  /** Hints bij de huidige opgave (maximaal 3); leeg bij elke nieuwe opgave. */
+  const [hints, setHints] = useState<string[]>([]);
+  const [hintLaadt, setHintLaadt] = useState(false);
   const recordRef = useRef(record);
   recordRef.current = record;
   /** Recente opgaveteksten van deze sessie (gaan mee in de prompt tegen herhaling). */
@@ -71,6 +74,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const laadOpgave = useCallback(async () => {
     setFase({ naam: 'laden' });
     setBeoordeling(null);
+    setHints([]);
     try {
       let nieuwe = await ai.genereerOpgave(maakContext());
       // Vangnet: is het tóch exact dezelfde opgave als eerder in deze
@@ -126,6 +130,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
         uitwerkingVoorAI,
         maakContext(),
         uitwerkingAfbeelding,
+        hints,
       );
       setBeoordeling(resultaat);
 
@@ -140,6 +145,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
             correct: resultaat.correct,
             feedback: resultaat.feedback,
             moeilijkheid: record.huidigNiveau,
+            aantalHints: hints.length,
           },
         ],
       };
@@ -160,6 +166,33 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     } catch (fout) {
       setControleFout(foutMelding(fout));
       setFase({ naam: 'opgave' });
+    }
+  };
+
+  /** Vraagt de volgende hint op, passend bij wat er nu is ingevuld. */
+  const vraagHint = async () => {
+    if (!opgave || hintLaadt || hints.length >= 3) return;
+    let huidigeInvoer = uitwerking;
+    let invoerAfbeelding: string | undefined;
+    if (invoermodus === 'schrijven') {
+      huidigeInvoer = '';
+      invoerAfbeelding = schrijfExportRef.current?.() ?? undefined;
+    }
+    setHintLaadt(true);
+    try {
+      const hint = await ai.geefHint(
+        opgave,
+        maakContext(),
+        hints.length + 1,
+        hints,
+        huidigeInvoer,
+        invoerAfbeelding,
+      );
+      setHints((huidige) => [...huidige, hint]);
+    } catch (fout) {
+      setControleFout(foutMelding(fout));
+    } finally {
+      setHintLaadt(false);
     }
   };
 
@@ -253,6 +286,26 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
                 <h2 className="kaart-kop">Opgave</h2>
                 <MathTekst tekst={opgave.opgave} className="opgavetekst" />
                 {opgave.figuur && <FiguurWeergave figuur={opgave.figuur} />}
+                {hints.map((hint, index) => (
+                  <div key={index} className="hintkaart">
+                    <span className="hint-label">💡 Hint {index + 1}</span>
+                    <MathTekst tekst={hint} />
+                  </div>
+                ))}
+                {fase.naam === 'opgave' && hints.length < 3 && (
+                  <button
+                    type="button"
+                    className="hint-knop"
+                    onClick={() => void vraagHint()}
+                    disabled={hintLaadt}
+                  >
+                    {hintLaadt
+                      ? 'Hint ophalen…'
+                      : hints.length === 0
+                        ? '💡 Ik wil een hint'
+                        : `💡 Nog een hint (${hints.length + 1} van 3)`}
+                  </button>
+                )}
               </section>
             )}
 
