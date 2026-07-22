@@ -59,9 +59,13 @@ async function fetchMetTimeout(url: string, init: RequestInit): Promise<Response
   }
 }
 
-// ── Standaard: via de serverless proxy ───────────────────────────────────
+// ── Gedeelde taakopbouw ──────────────────────────────────────────────────
 
-class ProxyAIService implements AIService {
+/**
+ * Vertaalt de interface-methoden naar AI-taken; alleen het transport
+ * (`roepAan`) verschilt per implementatie.
+ */
+abstract class BasisAIService implements AIService {
   genereerOpgave(context: OpgaveContext): Promise<Opgave> {
     return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
   }
@@ -103,7 +107,13 @@ class ProxyAIService implements AIService {
     return hint;
   }
 
-  private async roepAan<T>(taak: AITaak): Promise<T> {
+  protected abstract roepAan<T>(taak: AITaak): Promise<T>;
+}
+
+// ── Standaard: via de serverless proxy ───────────────────────────────────
+
+class ProxyAIService extends BasisAIService {
+  protected async roepAan<T>(taak: AITaak): Promise<T> {
     const antwoord = await fetchMetTimeout('/api/claude', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -122,54 +132,16 @@ class ProxyAIService implements AIService {
 
 /**
  * ⚠️ Alleen voor snel lokaal testen (zie .env.example): de API-sleutel is
- * hiermee zichtbaar voor iedereen die de site opent. Voor publiek gebruik
- * hoort de ProxyAIService met server-side sleutel.
+ * hiermee zichtbaar voor iedereen die de site opent. Bestaat alleen in
+ * dev-builds (zie maakAIService). Voor publiek gebruik hoort de
+ * ProxyAIService met server-side sleutel.
  */
-class DirecteAIService implements AIService {
-  constructor(private readonly apiKey: string) {}
-
-  genereerOpgave(context: OpgaveContext): Promise<Opgave> {
-    return this.roepAan<Opgave>({ taak: 'genereerOpgave', context });
+class DirecteAIService extends BasisAIService {
+  constructor(private readonly apiKey: string) {
+    super();
   }
 
-  controleerUitwerking(
-    opgave: Opgave,
-    uitwerking: string,
-    context: OpgaveContext,
-    uitwerkingAfbeelding?: string,
-    gegevenHints?: string[],
-  ): Promise<Beoordeling> {
-    return this.roepAan<Beoordeling>({
-      taak: 'controleerUitwerking',
-      context,
-      opgave,
-      uitwerking,
-      uitwerkingAfbeelding,
-      gegevenHints,
-    });
-  }
-
-  async geefHint(
-    opgave: Opgave,
-    context: OpgaveContext,
-    hintNummer: number,
-    eerdereHints: string[],
-    huidigeInvoer: string,
-    invoerAfbeelding?: string,
-  ): Promise<string> {
-    const { hint } = await this.roepAan<{ hint: string }>({
-      taak: 'geefHint',
-      context,
-      opgave,
-      hintNummer,
-      eerdereHints,
-      huidigeInvoer,
-      invoerAfbeelding,
-    });
-    return hint;
-  }
-
-  private async roepAan<T>(taak: AITaak): Promise<T> {
+  protected async roepAan<T>(taak: AITaak): Promise<T> {
     if (!this.apiKey) {
       throw new AIFout('Directe modus staat aan, maar VITE_ANTHROPIC_API_KEY is niet ingevuld.');
     }

@@ -106,9 +106,9 @@ function Grafiek({ figuur }: { figuur: FiguurData }) {
             {formatteerGetal(t)}
           </text>
         ))}
-        {/* functielijnen */}
-        {paden.map((pad) => (
-          <path key={pad.label} d={pad.d} fill="none" stroke={pad.kleur} strokeWidth={2} strokeLinejoin="round" />
+        {/* functielijnen (key op index: labels kunnen dubbel voorkomen) */}
+        {paden.map((pad, index) => (
+          <path key={index} d={pad.d} fill="none" stroke={pad.kleur} strokeWidth={2} strokeLinejoin="round" />
         ))}
         {/* losse punten */}
         {(figuur.punten ?? []).map((punt, index) => (
@@ -124,8 +124,8 @@ function Grafiek({ figuur }: { figuur: FiguurData }) {
       </svg>
       {paden.length > 1 && (
         <div className="figuur-legenda">
-          {paden.map((pad) => (
-            <span key={pad.label}>
+          {paden.map((pad, index) => (
+            <span key={index}>
               <i style={{ background: pad.kleur }} /> {pad.label}
             </span>
           ))}
