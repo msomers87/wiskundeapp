@@ -10,6 +10,7 @@ import type {
 } from '../types';
 import { foutMelding, maakAIService } from '../services/aiService';
 import { doelAantalGoed, nieuwRecord, verwerkGoedeOpgave } from '../logica/adaptief';
+import { installeerPaginaScroller } from '../logica/paginaScroller';
 import { MathTekst } from './MathTekst';
 import { MathInvoer } from './MathInvoer';
 import { SchrijfVeld, type PenStreek } from './SchrijfVeld';
@@ -98,6 +99,13 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     gestart.current = true;
     void laadOpgave();
   }, [laadOpgave]);
+
+  // Vangnet-scrollen zolang de schrijfmodus aanstaat: op sommige
+  // browsers scrolt de pagina daar niet meer native (zie paginaScroller).
+  useEffect(() => {
+    if (invoermodus !== 'schrijven') return;
+    return installeerPaginaScroller();
+  }, [invoermodus]);
 
   // Serialisatie voor de AI: wiskunderegels tussen $...$, tekstregels
   // als gewone tekst — zo kan de nakijker beide goed onderscheiden.
