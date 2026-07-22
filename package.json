@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vitest run && vite build",
+    "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "typescript": "^5.5.4",
     "vite": "^5.4.0",
     "vite-plugin-pwa": "^0.20.1",
-    "vite-plugin-static-copy": "^1.0.6"
+    "vite-plugin-static-copy": "^1.0.6",
+    "vitest": "^2.1.9"
   }
 }

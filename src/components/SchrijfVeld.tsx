@@ -50,6 +50,8 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
   const actievePointerRef = useRef<number | null>(null);
   const actieveSoortRef = useRef<string | null>(null);
   const stylusGezienRef = useRef(false);
+  /** Streken-stand bij het begin van een gum-haal, voor één undo-stap per haal. */
+  const gumStartRef = useRef<PenStreek[] | null>(null);
 
   const isSchrijfContact = (gebeurtenis: React.PointerEvent<HTMLCanvasElement>) => {
     if (gebeurtenis.pointerType === 'pen') {
@@ -169,6 +171,12 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
     actievePointerRef.current = null;
     actieveSoortRef.current = null;
     huidigeStreekRef.current = null;
+    // Gum-haal afronden: één undo-stap, en alleen als er iets gewist is.
+    const gumStart = gumStartRef.current;
+    gumStartRef.current = null;
+    if (gumStart !== null && gumStart !== strepenRef.current) {
+      historieRef.current = [...historieRef.current.slice(-49), gumStart];
+    }
     if (id !== null) {
       try {
         canvas.releasePointerCapture(id);
@@ -222,12 +230,15 @@ export function SchrijfVeld({ strepen, onStrepen, uitgeschakeld, registreerExpor
       // Geen capture (randgeval): schrijven werkt dan ook, alleen stopt
       // de streek bij de rand van het canvas.
     }
-    historieRef.current = [...historieRef.current.slice(-49), strepenRef.current];
     const punt = positie(gebeurtenis);
     if (gereedschap === 'gum') {
+      // Undo-stap voor de gum komt pas bij het loslaten, en alleen als er
+      // echt iets gewist is (zie stopStreek).
+      gumStartRef.current = strepenRef.current;
       gomOp(punt);
       return;
     }
+    historieRef.current = [...historieRef.current.slice(-49), strepenRef.current];
     huidigeStreekRef.current = [punt];
   };
 

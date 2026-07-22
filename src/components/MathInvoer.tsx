@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { MathfieldElement } from 'mathlive';
 import type { UitwerkingRegel } from '../types';
+import { nieuweRegel } from '../types';
 
 // Invoer van de uitwerking:
 // - Elke regel is óf een wiskundestap (MathLive <math-field>) óf gewone
@@ -39,27 +40,27 @@ interface Props {
 }
 
 export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
+  // Administratie op stabiel regel-id (niet op index: indexen verschuiven
+  // zodra een regel wordt verwijderd).
   const veldenRef = useRef<Map<number, MathfieldElement>>(new Map());
-  const actiefIndexRef = useRef(0);
+  const actiefIdRef = useRef<number | null>(null);
 
-  const wijzigRegel = (index: number, inhoud: string) => {
-    const kopie = [...regels];
-    kopie[index] = { ...kopie[index], inhoud };
-    onRegels(kopie);
+  const wijzigRegel = (id: number, inhoud: string) => {
+    onRegels(regels.map((regel) => (regel.id === id ? { ...regel, inhoud } : regel)));
   };
 
   const voegRegelToe = (soort: UitwerkingRegel['soort']) => {
-    onRegels([...regels, { soort, inhoud: '' }]);
+    onRegels([...regels, nieuweRegel(soort)]);
   };
 
-  const verwijderRegel = (index: number) => {
-    veldenRef.current.delete(index);
-    onRegels(regels.filter((_, andere) => andere !== index));
+  const verwijderRegel = (id: number) => {
+    veldenRef.current.delete(id);
+    onRegels(regels.filter((regel) => regel.id !== id));
   };
 
   const voegIn = (latex: string) => {
     const veld =
-      veldenRef.current.get(actiefIndexRef.current) ??
+      (actiefIdRef.current !== null ? veldenRef.current.get(actiefIdRef.current) : undefined) ??
       [...veldenRef.current.values()].pop();
     if (!veld) return;
     veld.insert(latex);
@@ -77,21 +78,21 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
   return (
     <div className="mathinvoer">
       {regels.map((regel, index) => (
-        <div className="mathinvoer-regel" key={index}>
+        <div className="mathinvoer-regel" key={regel.id}>
           <span className="mathinvoer-nummer">{index + 1}</span>
           {regel.soort === 'wiskunde' ? (
             <RegelVeld
               waarde={regel.inhoud}
               autoFocus={index === regels.length - 1 && index > 0}
               uitgeschakeld={uitgeschakeld}
-              onWijzig={(inhoud) => wijzigRegel(index, inhoud)}
+              onWijzig={(inhoud) => wijzigRegel(regel.id, inhoud)}
               onEnter={() => voegRegelToe('wiskunde')}
               onActief={() => {
-                actiefIndexRef.current = index;
+                actiefIdRef.current = regel.id;
               }}
               registreer={(element) => {
-                if (element) veldenRef.current.set(index, element);
-                else veldenRef.current.delete(index);
+                if (element) veldenRef.current.set(regel.id, element);
+                else veldenRef.current.delete(regel.id);
               }}
             />
           ) : (
@@ -102,9 +103,9 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
               value={regel.inhoud}
               disabled={uitgeschakeld}
               autoFocus={index === regels.length - 1 && index > 0}
-              onChange={(gebeurtenis) => wijzigRegel(index, gebeurtenis.target.value)}
+              onChange={(gebeurtenis) => wijzigRegel(regel.id, gebeurtenis.target.value)}
               onFocus={() => {
-                actiefIndexRef.current = index;
+                actiefIdRef.current = regel.id;
                 // Tekstregels gebruiken het gewone iOS-toetsenbord.
                 virtueelToetsenbord().hide();
               }}
@@ -115,7 +116,7 @@ export function MathInvoer({ regels, onRegels, uitgeschakeld }: Props) {
               type="button"
               className="mathinvoer-verwijder"
               aria-label={`Regel ${index + 1} verwijderen`}
-              onClick={() => verwijderRegel(index)}
+              onClick={() => verwijderRegel(regel.id)}
             >
               ✕
             </button>
@@ -210,7 +211,6 @@ function RegelVeld({ waarde, autoFocus, uitgeschakeld, onWijzig, onEnter, onActi
       veld.removeEventListener('focusin', focusHandler);
       veld.removeEventListener('pointerdown', toonHandler);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Externe resets (bijv. na het verwijderen van een regel) doorzetten

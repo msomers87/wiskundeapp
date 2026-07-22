@@ -27,8 +27,14 @@ export async function haalOp<T>(sleutel: string): Promise<T | null> {
       verzoek.onerror = () => reject(verzoek.error);
     });
   } catch {
-    const ruw = localStorage.getItem(sleutel);
-    return ruw ? (JSON.parse(ruw) as T) : null;
+    // Fallback mag zelf nooit gooien: corrupte of ontoegankelijke
+    // localStorage-data behandelen we als "niets opgeslagen".
+    try {
+      const ruw = localStorage.getItem(sleutel);
+      return ruw ? (JSON.parse(ruw) as T) : null;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -42,6 +48,11 @@ export async function bewaar<T>(sleutel: string, waarde: T): Promise<void> {
       transactie.onerror = () => reject(transactie.error);
     });
   } catch {
-    localStorage.setItem(sleutel, JSON.stringify(waarde));
+    try {
+      localStorage.setItem(sleutel, JSON.stringify(waarde));
+    } catch {
+      // Opslag vol of geblokkeerd: de app blijft werken, alleen zonder
+      // bewaarde voortgang.
+    }
   }
 }

@@ -8,6 +8,7 @@ import type {
   UitwerkingRegel,
   VoortgangRecord,
 } from '../types';
+import { nieuweRegel } from '../types';
 import { foutMelding, maakAIService } from '../services/aiService';
 import { doelAantalGoed, nieuwRecord, verwerkGoedeOpgave } from '../logica/adaptief';
 import { installeerPaginaScroller } from '../logica/paginaScroller';
@@ -42,7 +43,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
   const [record, setRecord] = useState<VoortgangRecord>(bestaandRecord ?? nieuwRecord(onderwerp.id));
   const [fase, setFase] = useState<Fase>({ naam: 'laden' });
   const [opgave, setOpgave] = useState<Opgave | null>(null);
-  const [regels, setRegels] = useState<UitwerkingRegel[]>([{ soort: 'wiskunde', inhoud: '' }]);
+  const [regels, setRegels] = useState<UitwerkingRegel[]>(() => [nieuweRegel('wiskunde')]);
   /** Invoermodus: typen (MathLive) of schrijven (canvas). Blijft staan per sessie. */
   const [invoermodus, setInvoermodus] = useState<'typen' | 'schrijven'>('typen');
   const [strepen, setStrepen] = useState<PenStreek[]>([]);
@@ -67,7 +68,6 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
       methode: profiel.methode,
       onderwerp,
       moeilijkheid: recordRef.current.huidigNiveau,
-      eerdereOpgaven: eerdereOpgavenRef.current,
     }),
     [profiel, onderwerp],
   );
@@ -76,16 +76,19 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     setFase({ naam: 'laden' });
     setBeoordeling(null);
     setHints([]);
+    // eerdereOpgaven alleen bij het genereren meesturen: nakijken en
+    // hints doen er niets mee, dus daar is het onnodige payload.
+    const generatieContext = () => ({ ...maakContext(), eerdereOpgaven: eerdereOpgavenRef.current });
     try {
-      let nieuwe = await ai.genereerOpgave(maakContext());
+      let nieuwe = await ai.genereerOpgave(generatieContext());
       // Vangnet: is het tóch exact dezelfde opgave als eerder in deze
       // sessie, vraag dan stilletjes één keer opnieuw.
       if (eerdereOpgavenRef.current.includes(nieuwe.opgave)) {
-        nieuwe = await ai.genereerOpgave(maakContext());
+        nieuwe = await ai.genereerOpgave(generatieContext());
       }
       eerdereOpgavenRef.current = [...eerdereOpgavenRef.current, nieuwe.opgave].slice(-6);
       setOpgave(nieuwe);
-      setRegels([{ soort: 'wiskunde', inhoud: '' }]);
+      setRegels([nieuweRegel('wiskunde')]);
       setStrepen([]);
       setFase({ naam: 'opgave' });
     } catch (fout) {
@@ -127,22 +130,34 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
     let uitwerkingVoorAI = uitwerking;
     if (invoermodus === 'schrijven') {
       const png = schrijfExportRef.current?.();
-      if (!png) return;
+      if (!png) {
+        // Niet stil niets doen: dan lijkt de knop "vastgelopen".
+        setControleFout('Het lukte niet om je geschreven uitwerking te lezen. Probeer het opnieuw.');
+        return;
+      }
       uitwerkingAfbeelding = png;
       uitwerkingVoorAI = 'Handgeschreven uitwerking (zie afbeelding).';
     }
     setFase({ naam: 'controleren' });
     try {
-      const resultaat = await ai.controleerUitwerking(
+      const ruw = await ai.controleerUitwerking(
         opgave,
         uitwerkingVoorAI,
         maakContext(),
         uitwerkingAfbeelding,
         hints,
       );
+      // Waarborg in code, niet alleen in de prompt: een opgave telt pas
+      // als goed wanneer antwoord én uitwerking allebei goed zijn.
+      const resultaat: Beoordeling = {
+        ...ruw,
+        correct: ruw.antwoordCorrect && ruw.uitwerkingCorrect,
+      };
       setBeoordeling(resultaat);
 
       // Poging vastleggen + adaptieve regels toepassen (pure functies).
+      // De historie is begrensd: alleen de laatste 50 pogingen per
+      // onderwerp blijven bewaard.
       let bijgewerkt: VoortgangRecord = {
         ...record,
         pogingen: [
@@ -155,7 +170,7 @@ export function OefenScherm({ profiel, onderwerp, bestaandRecord, onVoortgang, o
             moeilijkheid: record.huidigNiveau,
             aantalHints: hints.length,
           },
-        ],
+        ].slice(-50),
       };
       const wasAlBehaald = record.behaald;
       if (resultaat.correct) {

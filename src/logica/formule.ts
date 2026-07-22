@@ -105,7 +105,9 @@ class Parser {
 
     if (teken === '-') {
       this.index++;
-      const waarde = this.parseFactor();
+      // parseMacht (niet parseFactor): de macht bindt sterker dan de
+      // unaire min, zodat -x^2 = -(x^2) — de wiskundige conventie.
+      const waarde = this.parseMacht();
       return waarde === null ? null : -waarde;
     }
     if (teken === '(') {

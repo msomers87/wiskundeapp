@@ -40,7 +40,9 @@ export interface AIService {
 /** Fout met een leerling-vriendelijke Nederlandse melding. */
 export class AIFout extends Error {}
 
-const TIMEOUT_MS = 120_000;
+// Iets boven de maxDuration van de serverless functie (60 s, zie
+// vercel.json): langer wachten dan de server heeft, heeft geen zin.
+const TIMEOUT_MS = 75_000;
 
 async function fetchMetTimeout(url: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -195,7 +197,12 @@ class DirecteAIService implements AIService {
 
 /** Fabriek: kiest de implementatie op basis van de config (zie .env.example). */
 export function maakAIService(): AIService {
-  if (import.meta.env.VITE_DIRECTE_API === 'true') {
+  // De directe modus bestaat alleen in dev-builds (`npm run dev`). In een
+  // productie-build is `import.meta.env.DEV` false, waardoor de bundler
+  // deze hele tak — inclusief de sleutel-variabele — wegknipt. Zo kan een
+  // per ongeluk ingestelde VITE_ANTHROPIC_API_KEY nooit in de publieke
+  // JS belanden.
+  if (import.meta.env.DEV && import.meta.env.VITE_DIRECTE_API === 'true') {
     return new DirecteAIService(import.meta.env.VITE_ANTHROPIC_API_KEY ?? '');
   }
   return new ProxyAIService();

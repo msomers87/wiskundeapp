@@ -89,6 +89,8 @@ Let op: bij `npm run dev` draait de Vercel-function niet mee. Twee opties:
   `VITE_DIRECTE_API=true` + `VITE_ANTHROPIC_API_KEY=...`. De app roept Claude
   dan **rechtstreeks vanuit de browser** aan. ⚠️ Uitsluitend voor lokaal
   testen: de sleutel is dan zichtbaar voor iedereen die de site kan openen.
+  Deze modus bestaat alleen in de dev-server: een productie-build compileert
+  hem volledig weg, zodat de sleutel nooit in de publieke bundel kan komen.
   Publiek altijd via de proxy. Wisselen tussen beide raakt alleen de
   `AIService`-implementatie (zie `src/services/aiService.ts`), niet de UI.
 

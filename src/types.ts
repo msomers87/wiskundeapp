@@ -147,8 +147,18 @@ export interface Beoordeling {
 
 /** Eén regel van de uitwerking: een wiskundestap (MathLive/LaTeX) of gewone tekst. */
 export interface UitwerkingRegel {
+  /** Stabiel id voor React-keys en de veldadministratie (indexen verschuiven bij verwijderen). */
+  id: number;
   soort: 'wiskunde' | 'tekst';
   inhoud: string;
+}
+
+let regelTeller = 0;
+
+/** Maakt een lege uitwerkingsregel met een uniek, stabiel id. */
+export function nieuweRegel(soort: UitwerkingRegel['soort']): UitwerkingRegel {
+  regelTeller += 1;
+  return { id: regelTeller, soort, inhoud: '' };
 }
 
 // ── Voortgang (lokaal opgeslagen, cloud-ready) ───────────────────────────

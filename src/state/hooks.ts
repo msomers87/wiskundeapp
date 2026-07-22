@@ -12,10 +12,11 @@ export function useProfiel() {
   const [geladen, setGeladen] = useState(false);
 
   useEffect(() => {
-    void haalOp<Profiel>(PROFIEL_SLEUTEL).then((opgeslagen) => {
-      setProfiel(opgeslagen);
-      setGeladen(true);
-    });
+    void haalOp<Profiel>(PROFIEL_SLEUTEL)
+      .then((opgeslagen) => setProfiel(opgeslagen))
+      .catch(() => {})
+      // Ook bij een opslagfout moet de app gewoon opstarten.
+      .finally(() => setGeladen(true));
   }, []);
 
   const bewaarProfiel = useCallback((nieuw: Profiel) => {
@@ -30,9 +31,11 @@ export function useVoortgang() {
   const [voortgang, setVoortgang] = useState<Record<string, VoortgangRecord>>({});
 
   useEffect(() => {
-    void haalOp<Record<string, VoortgangRecord>>(VOORTGANG_SLEUTEL).then((opgeslagen) => {
-      if (opgeslagen) setVoortgang(opgeslagen);
-    });
+    void haalOp<Record<string, VoortgangRecord>>(VOORTGANG_SLEUTEL)
+      .then((opgeslagen) => {
+        if (opgeslagen) setVoortgang(opgeslagen);
+      })
+      .catch(() => {});
   }, []);
 
   /** Werkt één record bij en persisteert de hele map. */
